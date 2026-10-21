@@ -6,6 +6,7 @@ import { ColorValueCompact, ColorValuePicker } from '../../components/ColorValue
 import { ConfirmModal } from '../../components/ConfirmModal/ConfirmModal';
 import { CopyButton } from '../../components/CopyButton/CopyButton';
 import FilterEditor from '../../components/FilterEditor/FilterEditor';
+import { FontFamilyField } from '../../components/FontFamilyField/FontFamilyField';
 import { FormField } from '../../components/FormField/FormField';
 import { SourceUrl } from '../../components/SourceUrl/SourceUrl';
 import { SwitchRow } from '../../components/SwitchRow/SwitchRow';
@@ -331,20 +332,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             <div className="group">
               <h3>Type</h3>
               <FormField id="font-family" label="Font family" hint="Use a font that is installed on the computer that runs OBS.">
-                <input
-                  id="font-family"
-                  type="text"
-                  placeholder="Arial"
-                  list="font-family-suggestions"
-                  value={overlayParameters.fontFamily}
-                  onChange={(e) => update({ fontFamily: e.target.value })}
-                  autoComplete="off"
-                />
-                <datalist id="font-family-suggestions">
-                  {['sans-serif', 'Arial', 'Georgia', 'Trebuchet MS', 'Courier New', 'Impact'].map((font) => (
-                    <option key={font} value={font} />
-                  ))}
-                </datalist>
+                <FontFamilyField id="font-family" value={overlayParameters.fontFamily} onChange={(fontFamily) => update({ fontFamily })} />
               </FormField>
               {unitSetting('fontSize', 'font-size-value', 'Font size', ['px', 'em', 'rem'], [10, 64], [0.5, 4])}
             </div>
