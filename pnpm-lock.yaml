@@ -167,47 +167,47 @@ importers:
   .:
     dependencies:
       '@sentry/react':
-        specifier: ^10.12.0
+        specifier: 10.12.0
         version: 10.12.0(react@19.1.1)
       '@twemoji/api':
-        specifier: ^15.1.0
+        specifier: 15.1.0
         version: 15.1.0
       classnames:
-        specifier: ^2.5.1
+        specifier: 2.5.1
         version: 2.5.1
       color:
-        specifier: ^5.0.0
+        specifier: 5.0.0
         version: 5.0.0
       framer-motion:
-        specifier: ^12.23.12
+        specifier: 12.23.12
         version: 12.23.12(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       picocolors:
-        specifier: ^1.1.1
+        specifier: 1.1.1
         version: 1.1.1
       react:
-        specifier: ^19.0.0
+        specifier: 19.1.1
         version: 19.1.1
       react-dom:
-        specifier: ^19.0.0
+        specifier: 19.1.1
         version: 19.1.1(react@19.1.1)
       react-use-websocket:
-        specifier: ^4.13.0
+        specifier: 4.13.0
         version: 4.13.0
       react-virtuoso:
-        specifier: ^4.13.0
+        specifier: 4.13.0
         version: 4.13.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       wouter:
-        specifier: ^3.7.1
+        specifier: 3.7.1
         version: 3.7.1(react@19.1.1)
       zod:
-        specifier: ^3.24.1
+        specifier: 3.25.76
         version: 3.25.76
       zustand:
-        specifier: ^5.0.7
+        specifier: 5.0.7
         version: 5.0.7(@types/react@19.1.9)(react@19.1.1)(use-sync-external-store@1.5.0(react@19.1.1))
     devDependencies:
       '@types/node':
-        specifier: ^24.5.2
+        specifier: 24.5.2
         version: 24.5.2
       '@types/react':
         specifier: 19.1.9
@@ -219,28 +219,28 @@ importers:
         specifier: 7.0.0-dev.20260423.1
         version: 7.0.0-dev.20260423.1
       '@vitejs/plugin-react-swc':
-        specifier: ^3.5.0
+        specifier: 3.11.0
         version: 3.11.0(vite@6.3.5(@types/node@24.5.2)(less@4.4.0))
       less:
-        specifier: ^4.4.0
+        specifier: 4.4.0
         version: 4.4.0
       oxfmt:
-        specifier: ^0.46.0
+        specifier: 0.46.0
         version: 0.46.0
       oxlint:
-        specifier: ^1.61.0
+        specifier: 1.61.0
         version: 1.61.0(oxlint-tsgolint@0.21.1)
       oxlint-tsgolint:
-        specifier: ^0.21.1
+        specifier: 0.21.1
         version: 0.21.1
       styled-components:
-        specifier: ^6.1.19
+        specifier: 6.1.19
         version: 6.1.19(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       typescript:
-        specifier: ~5.7.2
+        specifier: 5.7.3
         version: 5.7.3
       vite:
-        specifier: ^6.1.0
+        specifier: 6.3.5
         version: 6.3.5(@types/node@24.5.2)(less@4.4.0)
       vitest:
         specifier: 3.2.4
