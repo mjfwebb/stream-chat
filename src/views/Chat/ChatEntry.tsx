@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import type { UsernameColorMode } from '../../constants';
 import { ChannelChatMessageEvent } from '../../types/twitchEvents';
 import { ChatImageRenderer } from './ChatImageRenderer';
 import { contrastCorrected } from './contrastCorrected';
@@ -16,6 +17,7 @@ interface ChatEntryProps {
   showColonAfterDisplayName: boolean;
   showNameAlias: boolean;
   showGifs: boolean;
+  usernameColor: UsernameColorMode;
   chatMessagePadding: string;
   userInformationStore: {
     [userId: string]: {
@@ -23,6 +25,18 @@ interface ChatEntryProps {
     };
   };
 }
+
+// 'corrected' adjusts the Twitch color for contrast, 'twitch' keeps it, and 'text' uses the overlay text color.
+const usernameColorFor = (mode: UsernameColorMode, twitchColor: string, backgroundColor: string): string => {
+  switch (mode) {
+    case 'twitch':
+      return twitchColor;
+    case 'text':
+      return 'inherit';
+    default:
+      return contrastCorrected(twitchColor, backgroundColor);
+  }
+};
 
 const Username = ({ user, showNameAlias }: { user: { displayName: string; alias?: string }; showNameAlias: boolean }) => {
   return (
@@ -45,6 +59,7 @@ export const ChatEntry = ({
   showColonAfterDisplayName,
   showNameAlias,
   showGifs,
+  usernameColor,
   chatMessagePadding,
   userInformationStore,
 }: ChatEntryProps) => {
@@ -91,7 +106,7 @@ export const ChatEntry = ({
           <span
             className="chat-message-nick"
             style={{
-              color: contrastCorrected(chatMessage.color || '#fff', backgroundColor),
+              color: usernameColorFor(usernameColor, chatMessage.color || '#fff', backgroundColor),
             }}
           >
             <Username user={user} showNameAlias={showNameAlias} />

@@ -1,8 +1,40 @@
-import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES } from '../../constants';
+import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, SETTING_OPTIONS } from '../../constants';
 import { buildFilterRegex, decodeFiltersFromUrl } from '../../utils/filters';
+
+// A number from the URL, or the default when it is missing or not a number.
+const numberParam = (searchParams: URLSearchParams, name: string, defaultValue: number): number => {
+  const raw = searchParams.get(name);
+  const value = raw === null || raw === '' ? NaN : Number(raw);
+  return Number.isFinite(value) ? value : defaultValue;
+};
+
+// A value from the URL that must be one of the allowed options, or the default.
+const optionParam = <T extends string>(searchParams: URLSearchParams, name: string, options: readonly T[], defaultValue: T): T => {
+  const raw = searchParams.get(name);
+  return options.find((option) => option === raw) ?? defaultValue;
+};
 
 export const useChatSearchParams = () => {
   const searchParams = new URLSearchParams(window.location.search);
+  const params = chatSearchParamsMap;
+  const defaults = DEFAULT_CHAT_SETTINGS_VALUES;
+
+  // Sizes in px for the parts of a chat entry. Chat.less reads them as CSS variables.
+  const avatarSize = numberParam(searchParams, params.avatarSize, defaults.avatarSize);
+  const badgeSize = numberParam(searchParams, params.badgeSize, defaults.badgeSize);
+  const emoteSize = numberParam(searchParams, params.emoteSize, defaults.emoteSize);
+  const lineHeight = numberParam(searchParams, params.lineHeight, defaults.lineHeight);
+
+  // Where the username color comes from: 'corrected' (Twitch color adjusted for contrast), 'twitch' or 'text'.
+  const usernameColor = optionParam(searchParams, params.usernameColor, SETTING_OPTIONS.usernameColor, 'corrected');
+
+  // Background behind each message, its opacity (0 to 100) and its corner radius in px.
+  const messageBackgroundColor = searchParams.get(params.messageBackgroundColor) || defaults.messageBackgroundColor;
+  const messageBackgroundOpacity = numberParam(searchParams, params.messageBackgroundOpacity, defaults.messageBackgroundOpacity);
+  const messageRadius = numberParam(searchParams, params.messageRadius, defaults.messageRadius);
+
+  // Where new messages appear: 'bottom' (default) or 'top'.
+  const chatAnchor = optionParam(searchParams, params.chatAnchor, SETTING_OPTIONS.chatAnchor, 'bottom');
 
   // Controls whether chat entries animate in. Defaults to true.
   const animatedEntry = searchParams.get(chatSearchParamsMap.animatedEntry) === 'false' ? false : DEFAULT_CHAT_SETTINGS_VALUES.animatedEntry;
@@ -82,6 +114,15 @@ export const useChatSearchParams = () => {
   const messageFilterRegex = buildFilterRegex(_messageFilterCfg);
 
   return {
+    avatarSize,
+    badgeSize,
+    emoteSize,
+    lineHeight,
+    usernameColor,
+    messageBackgroundColor,
+    messageBackgroundOpacity,
+    messageRadius,
+    chatAnchor,
     animatedEntry,
     animatedExit,
     backgroundColor,
@@ -105,3 +146,19 @@ export const useChatSearchParams = () => {
     messageFilterRegex,
   };
 };
+
+/** The settings that every chat entry needs, taken from the URL settings. */
+export const chatEntryStyleProps = (settings: ReturnType<typeof useChatSearchParams>) => ({
+  backgroundColor: settings.backgroundColor,
+  showAvatars: settings.showAvatars,
+  showBorders: settings.showBorders,
+  dropShadowEnabled: settings.dropShadowEnabled,
+  dropShadowSettings: settings.dropShadowSettings,
+  showColonAfterDisplayName: settings.showColonAfterDisplayName,
+  textStrokeEnabled: settings.textStrokeEnabled,
+  textStrokeSettings: settings.textStrokeSettings,
+  chatMessagePadding: settings.chatMessagePadding,
+  showNameAlias: settings.showNameAlias,
+  showGifs: settings.showGifs,
+  usernameColor: settings.usernameColor,
+});

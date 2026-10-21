@@ -1,5 +1,6 @@
 import { DisappearingChat } from './DisappearingChat';
 import { NonDisappearingChat } from './NonDisappearingChat';
+import { overlayCssVariables } from './overlayStyle';
 import { TokenExpiredNotice } from './TokenExpiredNotice';
 import { useChatSearchParams } from './useChatSearchParams';
 
@@ -23,6 +24,7 @@ export const Chat = () => {
           color: chatSearchParams.foregroundColor,
           fontSize: chatSearchParams.fontSize,
           fontFamily: chatSearchParams.fontFamily,
+          ...overlayCssVariables(chatSearchParams),
         }}
       >
         <TokenExpiredNotice />

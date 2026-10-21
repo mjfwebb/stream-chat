@@ -111,3 +111,37 @@ describe('buildUpdatedChatUrl - emote services and message limit', () => {
     expect(result.searchParams.get('max-messages')).toBe('50');
   });
 });
+
+describe('buildUpdatedChatUrl - appearance', () => {
+  it('omits every appearance setting at its default', () => {
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, { ...DEFAULT_CHAT_SETTINGS_VALUES }));
+    for (const param of [
+      'avatar-size',
+      'badge-size',
+      'emote-size',
+      'line-height',
+      'username-color',
+      'message-background-color',
+      'message-background-opacity',
+      'message-radius',
+      'chat-anchor',
+    ]) {
+      expect(result.searchParams.get(param)).toBeNull();
+    }
+  });
+
+  it('writes changed appearance settings', () => {
+    const params = {
+      ...DEFAULT_CHAT_SETTINGS_VALUES,
+      avatarSize: 48,
+      usernameColor: 'twitch' as const,
+      messageBackgroundColor: '#000000',
+      chatAnchor: 'top' as const,
+    };
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
+    expect(result.searchParams.get('avatar-size')).toBe('48');
+    expect(result.searchParams.get('username-color')).toBe('twitch');
+    expect(result.searchParams.get('message-background-color')).toBe('#000000');
+    expect(result.searchParams.get('chat-anchor')).toBe('top');
+  });
+});

@@ -6,7 +6,7 @@ import { Virtuoso } from 'react-virtuoso';
 
 import { store } from '../../store/store';
 import { ChatEntry } from './ChatEntry';
-import { useChatSearchParams } from './useChatSearchParams';
+import { chatEntryStyleProps, useChatSearchParams } from './useChatSearchParams';
 
 export const NonDisappearingChat = () => {
   const chatSearchParams = useChatSearchParams();
@@ -29,17 +29,7 @@ export const NonDisappearingChat = () => {
     return (
       <ChatEntry
         chatMessage={filteredMessages[index]}
-        backgroundColor={chatSearchParams.backgroundColor}
-        showAvatars={chatSearchParams.showAvatars}
-        showBorders={chatSearchParams.showBorders}
-        dropShadowEnabled={chatSearchParams.dropShadowEnabled}
-        dropShadowSettings={chatSearchParams.dropShadowSettings}
-        textStrokeEnabled={chatSearchParams.textStrokeEnabled}
-        textStrokeSettings={chatSearchParams.textStrokeSettings}
-        showColonAfterDisplayName={chatSearchParams.showColonAfterDisplayName}
-        showNameAlias={chatSearchParams.showNameAlias}
-        showGifs={chatSearchParams.showGifs}
-        chatMessagePadding={chatSearchParams.chatMessagePadding}
+        {...chatEntryStyleProps(chatSearchParams)}
         userInformationStore={store.getState().userInformation}
       />
     );
@@ -60,7 +50,7 @@ export const NonDisappearingChat = () => {
   return (
     <Virtuoso
       ref={virtuoso}
-      alignToBottom={true}
+      alignToBottom={chatSearchParams.chatAnchor === 'bottom'}
       followOutput={'auto'}
       itemContent={itemContent}
       totalCount={filteredMessages.length}
