@@ -56,6 +56,21 @@
         padding: 6px 4px;
       }
 
+      // The tint of a highlight or a banner. It sits on its own layer behind the text, so it can be a gradient
+      // and it does not replace the message background or the subscriber lines.
+      position: relative;
+      isolation: isolate;
+
+      &-highlighted::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        background: var(--highlight-background);
+        pointer-events: none;
+      }
+
       &-spotlighted {
         border-left: 3px solid rgb(190, 54, 236);
         border-right: 3px solid rgb(7, 55, 176);

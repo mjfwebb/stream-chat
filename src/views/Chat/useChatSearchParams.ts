@@ -1,4 +1,5 @@
-import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, SETTING_OPTIONS } from '../../constants';
+import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, LEGACY_HIGHLIGHT_COLOR_PARAM, SETTING_OPTIONS } from '../../constants';
+import { isColorValue } from '../../utils/colorValue';
 import { buildFilterRegex, decodeFiltersFromUrl } from '../../utils/filters';
 import { compileHighlightRules, type HighlightRule } from '../../utils/highlights';
 import { parseRoles } from '../../utils/messageVisibility';
@@ -10,10 +11,11 @@ const numberParam = (searchParams: URLSearchParams, name: string, defaultValue: 
   return Number.isFinite(value) ? value : defaultValue;
 };
 
-// A 6-digit hex color from the URL, or the default. Other color formats cannot get the tint behind a banner.
+// A color setting from the URL, or the default: one 6-digit hex color, or two separated by a comma for a gradient.
+// Other color formats cannot get the tint behind a highlight.
 const hexParam = (searchParams: URLSearchParams, name: string, defaultValue: string): string => {
   const raw = searchParams.get(name);
-  return raw && /^#[0-9a-f]{6}$/i.test(raw) ? raw : defaultValue;
+  return raw && isColorValue(raw) ? raw : defaultValue;
 };
 
 // A value from the URL that must be one of the allowed options, or the default.
@@ -48,12 +50,19 @@ export const useChatSearchParams = () => {
   const highlightPoints = searchParams.get(params.highlightPoints) === 'false' ? false : defaults.highlightPoints;
   const highlightMentions = searchParams.get(params.highlightMentions) === 'true' ? true : defaults.highlightMentions;
   const highlightFirstMessages = searchParams.get(params.highlightFirstMessages) === 'true' ? true : defaults.highlightFirstMessages;
-  const highlightColor = searchParams.get(params.highlightColor) || defaults.highlightColor;
+  // One color for each kind. The old highlight-color parameter is the fallback for mentions and first messages.
+  // An empty points color means Twitch's own purple gradient.
+  const legacyHighlightColor = hexParam(searchParams, LEGACY_HIGHLIGHT_COLOR_PARAM, '');
+  const highlightMentionsColor = hexParam(searchParams, params.highlightMentionsColor, legacyHighlightColor || defaults.highlightMentionsColor);
+  const highlightFirstColor = hexParam(searchParams, params.highlightFirstColor, legacyHighlightColor || defaults.highlightFirstColor);
+  const highlightPointsColor = hexParam(searchParams, params.highlightPointsColor, defaults.highlightPointsColor);
+  // How strong the color behind a highlight or a banner is, from 0 to 100. Twitch style is always full strength.
+  const highlightStrength = Math.min(Math.max(numberParam(searchParams, params.highlightStrength, defaults.highlightStrength), 0), 100);
 
   // Controls whether a reply shows a line about the message it answers. Defaults to false.
   const showReplies = searchParams.get(params.showReplies) === 'true' ? true : defaults.showReplies;
 
-  // Banner colors for subs, gifts and raids (6-digit hex), and whether a banner starts with a label such as SUB.
+  // Banner colors for subs, gifts and raids (a color or a gradient), and whether a banner starts with a label such as SUB.
   // Announcements keep the color that Twitch sends with them.
   const noticeColors = {
     subs: hexParam(searchParams, params.noticeColorSubs, defaults.noticeColorSubs),
@@ -158,7 +167,10 @@ export const useChatSearchParams = () => {
     highlightPoints,
     highlightMentions,
     highlightFirstMessages,
-    highlightColor,
+    highlightMentionsColor,
+    highlightFirstColor,
+    highlightPointsColor,
+    highlightStrength,
     highlightRules,
     showReplies,
     noticeColors,
@@ -205,7 +217,10 @@ export const chatEntryStyleProps = (settings: ReturnType<typeof useChatSearchPar
   highlightPoints: settings.highlightPoints,
   highlightMentions: settings.highlightMentions,
   highlightFirstMessages: settings.highlightFirstMessages,
-  highlightColor: settings.highlightColor,
+  highlightMentionsColor: settings.highlightMentionsColor,
+  highlightFirstColor: settings.highlightFirstColor,
+  highlightPointsColor: settings.highlightPointsColor,
+  highlightStrength: settings.highlightStrength,
   highlightRules: settings.highlightRules,
   showReplies: settings.showReplies,
   noticeColors: settings.noticeColors,

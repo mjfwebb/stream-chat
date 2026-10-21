@@ -1,0 +1,53 @@
+.color-value {
+  display: grid;
+  gap: 8px;
+
+  // The hex box keeps a fixed width, so the preview bar gets the rest of the row
+  &-second .color-picker-text {
+    flex: none;
+    width: 120px;
+  }
+
+  &-preview {
+    flex: 1;
+    min-width: 0;
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+}
+
+// Swatches in a row of settings, such as a highlight rule
+.color-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  input[type='color'] {
+    width: 34px;
+    height: 30px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  &-button {
+    width: 26px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--muted);
+      color: var(--fg);
+    }
+  }
+}

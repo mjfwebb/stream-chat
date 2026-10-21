@@ -26,7 +26,9 @@ const noSettings: HighlightSettings = {
   highlightPoints: false,
   highlightMentions: false,
   highlightFirstMessages: false,
-  highlightColor: '#a970ff',
+  highlightMentionsColor: '#a970ff',
+  highlightFirstColor: '#00c853',
+  highlightPointsColor: '',
   highlightRules: [],
 };
 
@@ -41,6 +43,17 @@ describe('compileHighlightRules', () => {
 
   it('ignores rules without a pattern', () => {
     expect(compileHighlightRules(config)).toHaveLength(2);
+  });
+
+  it('keeps a gradient color and replaces a color that is not valid', () => {
+    const rules = compileHighlightRules({
+      rules: [
+        { matchType: 'contains', pattern: 'one', caseSensitive: false, color: '#ff0000,#0000ff' },
+        { matchType: 'contains', pattern: 'two', caseSensitive: false, color: 'not a color' },
+      ],
+    });
+    expect(rules[0].color).toBe('#ff0000,#0000ff');
+    expect(rules[1].color).toBe('#a970ff');
   });
 
   it('matches like a filter rule does', () => {
@@ -95,7 +108,37 @@ describe('getHighlight', () => {
   it('highlights a first message when switched on', () => {
     const message = makeMessage({ message_type: 'user_intro' });
     expect(getHighlight(message, noSettings)).toBeNull();
-    expect(getHighlight(message, { ...noSettings, highlightFirstMessages: true })).toEqual({ type: 'color', color: '#a970ff' });
+    expect(getHighlight(message, { ...noSettings, highlightFirstMessages: true })).toEqual({ type: 'color', color: '#00c853' });
+  });
+
+  it('uses a different color for each kind', () => {
+    const settings = {
+      ...noSettings,
+      highlightPoints: true,
+      highlightMentions: true,
+      highlightFirstMessages: true,
+      highlightMentionsColor: '#111111',
+      highlightFirstColor: '#222222',
+      highlightPointsColor: '#333333',
+    };
+    const mention = makeMessage({
+      message: {
+        text: '@athano hi',
+        fragments: [{ type: 'mention', text: '@athano', mention: { user_id: '1', user_name: 'Athano', user_login: 'athano' } }],
+      },
+    });
+    expect(getHighlight(mention, settings)).toEqual({ type: 'color', color: '#111111' });
+    expect(getHighlight(makeMessage({ message_type: 'user_intro' }), settings)).toEqual({ type: 'color', color: '#222222' });
+    expect(getHighlight(makeMessage({ message_type: 'channel_points_highlighted' }), settings)).toEqual({ type: 'color', color: '#333333' });
+  });
+
+  it('keeps Twitch’s purple style for channel point highlights until a color is chosen', () => {
+    const settings = { ...noSettings, highlightPoints: true };
+    expect(getHighlight(makeMessage({ message_type: 'channel_points_highlighted' }), settings)).toEqual({ type: 'spotlight' });
+    expect(getHighlight(makeMessage({ message_type: 'channel_points_highlighted' }), { ...settings, highlightPointsColor: '#ff0000' })).toEqual({
+      type: 'color',
+      color: '#ff0000',
+    });
   });
 
   it('prefers a channel point highlight over a matching rule', () => {
