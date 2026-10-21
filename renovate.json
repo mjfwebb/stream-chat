@@ -9,7 +9,6 @@
     "automerge": false
   },
   "rangeStrategy": "pin",
-  "schedule": ["before 4am on Monday"],
   "separateMajorMinor": true,
   "packageRules": [
     {
