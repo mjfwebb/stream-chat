@@ -1,0 +1,8 @@
+# Only install a version of a package that has been published for at least 7 days (in minutes).
+minimumReleaseAge: 10080
+
+# These two have install scripts that only check or speed up a binary that already comes as an optional package.
+# The repo has always run without them, so deny them. pnpm 12 fails the install for scripts that nobody decided on.
+allowBuilds:
+  '@swc/core': false
+  esbuild: false
