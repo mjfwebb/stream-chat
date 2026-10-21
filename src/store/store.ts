@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { DEFAULT_CHAT_SETTINGS_VALUES } from '../constants';
 import { UserInformation } from '../handlers/twitch/helix/schemas';
-import { ChannelChatMessageDeleteEvent, ChannelChatMessageEvent } from '../types/twitchEvents';
+import { ChannelChatMessageDeleteEvent, ChannelChatMessageEvent, NoticeKind } from '../types/twitchEvents';
 import { ChatBadge, ChatCheer, ChatEmote } from '../types/types';
 
 const CLIENT_ID = 'nl4u7l1h4dt48e8hj58yha0we527kg';
@@ -32,6 +32,9 @@ interface StoreState {
   // Oldest messages are dropped when the list grows past this, so a long stream does not use more and more memory.
   maxChatMessages: number;
   setMaxChatMessages: (max: number) => void;
+  // Which channel events show as banners, such as subs and raids. Empty means none, and the overlay does not subscribe to them.
+  noticeKinds: NoticeKind[];
+  setNoticeKinds: (kinds: NoticeKind[]) => void;
   addChatMessage: (event: ChannelChatMessageEvent) => void;
   deleteChatMessage: (event: ChannelChatMessageDeleteEvent) => void;
   removeChatMessage: (event: ChannelChatMessageEvent) => void;
@@ -64,6 +67,8 @@ export const store = create<StoreState>((set) => ({
   chatMessageEvents: [],
   maxChatMessages: DEFAULT_CHAT_SETTINGS_VALUES.maxMessages,
   setMaxChatMessages: (max: number) => set({ maxChatMessages: max }),
+  noticeKinds: [],
+  setNoticeKinds: (kinds: NoticeKind[]) => set({ noticeKinds: kinds }),
   addChatMessage: (chatMessage: ChannelChatMessageEvent) => {
     set((state) => ({
       ...state,

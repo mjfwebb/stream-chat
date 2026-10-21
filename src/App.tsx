@@ -5,6 +5,7 @@ import { fetchBadges } from './handlers/twitch/helix/fetchBadges';
 import { fetchCheers } from './handlers/twitch/helix/fetchCheers';
 import { useMount } from './hooks/useMount';
 import { persistedStore, store } from './store/store';
+import { parseNoticeKinds } from './utils/notices';
 import { TwitchAuthHandler } from './TwitchAuthHandler';
 import { TwitchBroadcasterIdLoader } from './TwitchBroadcasterIdLoader';
 import { Chat } from './views/Chat/Chat';
@@ -21,6 +22,7 @@ function App() {
   const betterTTVEnabled = searchParams.get('bttv-emotes');
   const frankerFaceZEnabled = searchParams.get('ffz-emotes');
   const maxMessages = Number(searchParams.get('max-messages'));
+  const showNotices = searchParams.get('show-notices');
 
   useMount(() => {
     void fetchBadges('global');
@@ -55,8 +57,11 @@ function App() {
       store.getState().setMaxChatMessages(maxMessages);
     }
 
+    // The channel events that show as banners. The overlay subscribes to them only when some are chosen.
+    store.getState().setNoticeKinds(parseNoticeKinds(showNotices));
+
     setParamsApplied(true);
-  }, [tokenFromParams, channelFromParams, sevenTVEnabled, betterTTVEnabled, frankerFaceZEnabled, maxMessages]);
+  }, [tokenFromParams, channelFromParams, sevenTVEnabled, betterTTVEnabled, frankerFaceZEnabled, maxMessages, showNotices]);
 
   // The views read the store when they mount, so wait until the parameters are in it.
   if (!paramsApplied) {

@@ -32,6 +32,11 @@ const hasRole = (message: ChannelChatMessageEvent, roles: readonly Role[]): bool
  * so a message that fails a regex is hidden. With no roles chosen, every role shows.
  */
 export const isMessageVisible = (message: ChannelChatMessageEvent, settings: VisibilitySettings): boolean => {
+  // A banner for a channel event already passed the show-notices setting, and has no chatter to filter.
+  if (message.notice) {
+    return true;
+  }
+
   if (settings.onlyRoles.length > 0 && !hasRole(message, settings.onlyRoles)) {
     return false;
   }

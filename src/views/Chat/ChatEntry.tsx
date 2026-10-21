@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import type { UsernameColorMode } from '../../constants';
 import { ChannelChatMessageEvent } from '../../types/twitchEvents';
-import { getHighlight, type HighlightSettings } from '../../utils/highlights';
+import { getHighlight, type Highlight, type HighlightSettings } from '../../utils/highlights';
 import { ChatImageRenderer } from './ChatImageRenderer';
 import { contrastCorrected } from './contrastCorrected';
 import { withOpacity } from './overlayStyle';
@@ -21,6 +21,8 @@ interface ChatEntryProps extends HighlightSettings {
   showGifs: boolean;
   usernameColor: UsernameColorMode;
   showReplies: boolean;
+  noticeColors: Record<'subs' | 'gifts' | 'raids', string>;
+  showNoticeLabels: boolean;
   chatMessagePadding: string;
   userInformationStore: {
     [userId: string]: {
@@ -64,6 +66,8 @@ export const ChatEntry = ({
   showGifs,
   usernameColor,
   showReplies,
+  noticeColors,
+  showNoticeLabels,
   chatMessagePadding,
   userInformationStore,
   highlightPoints,
@@ -73,7 +77,13 @@ export const ChatEntry = ({
   highlightRules,
 }: ChatEntryProps) => {
   const gigantified = chatMessage.message_type === 'power_ups_gigantified_emote';
-  const highlight = getHighlight(chatMessage, { highlightPoints, highlightMentions, highlightFirstMessages, highlightColor, highlightRules });
+  const notice = chatMessage.notice;
+  // A banner for a channel event, such as a sub or a raid, uses the color chosen for its kind.
+  // An announcement keeps the color that Twitch sent with it.
+  const noticeColor = notice ? (notice.kind === 'announcements' ? notice.color : noticeColors[notice.kind]) : undefined;
+  const highlight: Highlight | null = noticeColor
+    ? { type: 'color', color: noticeColor }
+    : getHighlight(chatMessage, { highlightPoints, highlightMentions, highlightFirstMessages, highlightColor, highlightRules });
   const actionMessage = chatMessage.message.text.startsWith('\u0001ACTION');
 
   // Gifs currently can't be combined with other fragments, so a disabled gif means an empty message
@@ -119,22 +129,32 @@ export const ChatEntry = ({
         }}
       >
         <span>
-          {showReplies && chatMessage.reply && (
-            <span className="chat-message-reply" title={chatMessage.reply.parent_message_body}>
-              Replying to @{chatMessage.reply.parent_user_name}: {chatMessage.reply.parent_message_body}
-            </span>
+          {notice ? (
+            showNoticeLabels && (
+              <span className="chat-message-notice-label" style={{ color: noticeColor }}>
+                {notice.label}
+              </span>
+            )
+          ) : (
+            <>
+              {showReplies && chatMessage.reply && (
+                <span className="chat-message-reply" title={chatMessage.reply.parent_message_body}>
+                  Replying to @{chatMessage.reply.parent_user_name}: {chatMessage.reply.parent_message_body}
+                </span>
+              )}
+              {showAvatars && user.avatarUrl && <img className="chat-message-avatar-image" src={user.avatarUrl} alt="avatar" height={34} />}
+              <UserBadges badges={chatMessage.badges} />
+              <span
+                className="chat-message-nick"
+                style={{
+                  color: usernameColorFor(usernameColor, chatMessage.color || '#fff', backgroundColor),
+                }}
+              >
+                <Username user={user} showNameAlias={showNameAlias} />
+              </span>
+              {showColonAfterDisplayName && !actionMessage && ': '}
+            </>
           )}
-          {showAvatars && user.avatarUrl && <img className="chat-message-avatar-image" src={user.avatarUrl} alt="avatar" height={34} />}
-          <UserBadges badges={chatMessage.badges} />
-          <span
-            className="chat-message-nick"
-            style={{
-              color: usernameColorFor(usernameColor, chatMessage.color || '#fff', backgroundColor),
-            }}
-          >
-            <Username user={user} showNameAlias={showNameAlias} />
-          </span>
-          {showColonAfterDisplayName && !actionMessage && ': '}
           <span className={classNames('chat-message-text', actionMessage && 'chat-message-text-action')}>
             <ChatImageRenderer fragments={chatMessage.message.fragments} showGifs={showGifs} />
           </span>

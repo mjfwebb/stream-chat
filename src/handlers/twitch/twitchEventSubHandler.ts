@@ -1,6 +1,7 @@
 import { store } from '../../store/store';
 import { EventsubEvent } from '../../types/twitchEvents';
 import { logger } from '../../utils/logger';
+import { noticeToChatMessage } from '../../utils/notices';
 import { fetchUserInformation } from './helix/fetchUserInformation';
 
 export async function twitchEventSubHandler(data: EventsubEvent) {
@@ -22,6 +23,14 @@ export async function twitchEventSubHandler(data: EventsubEvent) {
     case 'channel.chat.message_delete': {
       store.getState().deleteChatMessage(data);
       logger.info(`Deleted chat message from ${data.target_user_name}: ${data.message_id}`);
+      break;
+    }
+
+    case 'channel.chat.notification': {
+      const notice = noticeToChatMessage(data, store.getState().noticeKinds);
+      if (notice) {
+        store.getState().addChatMessage(notice);
+      }
       break;
     }
 

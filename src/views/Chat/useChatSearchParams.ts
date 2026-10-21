@@ -10,6 +10,12 @@ const numberParam = (searchParams: URLSearchParams, name: string, defaultValue: 
   return Number.isFinite(value) ? value : defaultValue;
 };
 
+// A 6-digit hex color from the URL, or the default. Other color formats cannot get the tint behind a banner.
+const hexParam = (searchParams: URLSearchParams, name: string, defaultValue: string): string => {
+  const raw = searchParams.get(name);
+  return raw && /^#[0-9a-f]{6}$/i.test(raw) ? raw : defaultValue;
+};
+
 // A value from the URL that must be one of the allowed options, or the default.
 const optionParam = <T extends string>(searchParams: URLSearchParams, name: string, options: readonly T[], defaultValue: T): T => {
   const raw = searchParams.get(name);
@@ -46,6 +52,15 @@ export const useChatSearchParams = () => {
 
   // Controls whether a reply shows a line about the message it answers. Defaults to false.
   const showReplies = searchParams.get(params.showReplies) === 'true' ? true : defaults.showReplies;
+
+  // Banner colors for subs, gifts and raids (6-digit hex), and whether a banner starts with a label such as SUB.
+  // Announcements keep the color that Twitch sends with them.
+  const noticeColors = {
+    subs: hexParam(searchParams, params.noticeColorSubs, defaults.noticeColorSubs),
+    gifts: hexParam(searchParams, params.noticeColorGifts, defaults.noticeColorGifts),
+    raids: hexParam(searchParams, params.noticeColorRaids, defaults.noticeColorRaids),
+  };
+  const showNoticeLabels = searchParams.get(params.showNoticeLabels) === 'false' ? false : defaults.showNoticeLabels;
 
   // Only messages from these roles show (comma separated: subscriber, vip, moderator, broadcaster). Empty shows everyone.
   const onlyRoles = parseRoles(searchParams.get(params.onlyRoles));
@@ -146,6 +161,8 @@ export const useChatSearchParams = () => {
     highlightColor,
     highlightRules,
     showReplies,
+    noticeColors,
+    showNoticeLabels,
     onlyRoles,
     animatedEntry,
     animatedExit,
@@ -191,4 +208,6 @@ export const chatEntryStyleProps = (settings: ReturnType<typeof useChatSearchPar
   highlightColor: settings.highlightColor,
   highlightRules: settings.highlightRules,
   showReplies: settings.showReplies,
+  noticeColors: settings.noticeColors,
+  showNoticeLabels: settings.showNoticeLabels,
 });

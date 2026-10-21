@@ -184,3 +184,32 @@ describe('buildUpdatedChatUrl - replies and roles', () => {
     expect(result.searchParams.get('only-roles')).toBe('vip,moderator');
   });
 });
+
+describe('buildUpdatedChatUrl - event banners', () => {
+  it('omits show-notices when no banner is on', () => {
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, { ...DEFAULT_CHAT_SETTINGS_VALUES }));
+    expect(result.searchParams.get('show-notices')).toBeNull();
+  });
+
+  it('writes the chosen banner kinds', () => {
+    const params = { ...DEFAULT_CHAT_SETTINGS_VALUES, showNotices: 'subs,raids' };
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
+    expect(result.searchParams.get('show-notices')).toBe('subs,raids');
+  });
+});
+
+describe('buildUpdatedChatUrl - banner style', () => {
+  it('omits the banner colors and labels at their defaults', () => {
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, { ...DEFAULT_CHAT_SETTINGS_VALUES }));
+    for (const param of ['notice-color-subs', 'notice-color-gifts', 'notice-color-raids', 'notice-labels']) {
+      expect(result.searchParams.get(param)).toBeNull();
+    }
+  });
+
+  it('writes changed banner colors and a hidden label', () => {
+    const params = { ...DEFAULT_CHAT_SETTINGS_VALUES, noticeColorSubs: '#00a3ff', showNoticeLabels: false };
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
+    expect(result.searchParams.get('notice-color-subs')).toBe('#00a3ff');
+    expect(result.searchParams.get('notice-labels')).toBe('false');
+  });
+});
