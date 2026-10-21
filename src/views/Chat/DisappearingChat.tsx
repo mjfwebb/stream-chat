@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import classNames from 'classnames';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 
 import { store } from '../../store/store';
 import { ChannelChatMessageEvent } from '../../types/twitchEvents';

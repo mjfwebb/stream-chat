@@ -1,6 +1,6 @@
 import { memo, useRef } from 'react';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 
