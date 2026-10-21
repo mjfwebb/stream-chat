@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.5.2",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
+    "@types/react": "19.1.9",
+    "@types/react-dom": "19.1.7",
     "@typescript/native-preview": "7.0.0-dev.20260423.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "less": "^4.4.0",
