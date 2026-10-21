@@ -49,14 +49,14 @@ const multiPartRegex = /^(?<value>[\d.]+)(?<unit>px|em|rem|vh|vw|ch)$/;
 const NICE_DROP_SHADOW_PRESET =
   'rgb(0, 0, 0) 2px 0px 0px, rgb(0, 0, 0) 1.75517px 0.958851px 0px, rgb(0, 0, 0) 1.0806px 1.68294px 0px, rgb(0, 0, 0) 0.141474px 1.99499px 0px, rgb(0, 0, 0) -0.832294px 1.81859px 0px, rgb(0, 0, 0) -1.60229px 1.19694px 0px, rgb(0, 0, 0) -1.97998px 0.28224px 0px, rgb(0, 0, 0) -1.87291px -0.701566px 0px, rgb(0, 0, 0) -1.30729px -1.5136px 0px, rgb(0, 0, 0) -0.421592px -1.95506px 0px, rgb(0, 0, 0) 0.567324px -1.91785px 0px, rgb(0, 0, 0) 1.41734px -1.41108px 0px, rgb(0, 0, 0) 1.92034px -0.558831px 0px';
 
-type TabId = 'look' | 'layout' | 'motion' | 'effects' | 'highlights' | 'filters';
+type TabId = 'look' | 'layout' | 'motion' | 'effects' | 'alerts' | 'filters';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'look', label: 'Look' },
   { id: 'layout', label: 'Layout' },
   { id: 'motion', label: 'Motion' },
   { id: 'effects', label: 'Effects' },
-  { id: 'highlights', label: 'Highlights' },
+  { id: 'alerts', label: 'Alerts' },
   { id: 'filters', label: 'Filters' },
 ];
 
@@ -92,7 +92,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
   const pendingChanges = countChangedParams(chatUrl, pendingUrl);
   // A count to show on a tab, so rules on a tab that is not open are not forgotten.
   const tabCounts: Partial<Record<TabId, number>> = {
-    highlights: highlightConfig.rules.length,
+    alerts: highlightConfig.rules.length + parseNoticeKinds(overlayParameters.showNotices).length,
     filters: (userFilterConfig.rules?.length ?? 0) + (messageFilterConfig.rules?.length ?? 0),
   };
 
@@ -453,7 +453,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             </div>
           </>
         );
-      case 'highlights':
+      case 'alerts':
         return (
           <>
             <div className="group">
