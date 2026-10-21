@@ -5,8 +5,11 @@ import { buildFilterRegex, decodeFiltersFromUrl } from '../../../utils/filters';
 import { isMessageVisible, parseRoles, type VisibilitySettings } from '../../../utils/messageVisibility';
 import { compileHighlightRules, type HighlightRule } from '../../../utils/highlights';
 import { Button } from '../../../components/Button/Button';
+import { noticeToChatMessage, parseNoticeKinds } from '../../../utils/notices';
 import { ChatEntry } from '../../Chat/ChatEntry';
 import { overlayCssVariables } from '../../Chat/overlayStyle';
+
+import { SAMPLE_NOTICES } from './sampleNotices';
 
 import './ChatPreview.less';
 
@@ -217,6 +220,12 @@ export const ChatPreview = ({
     showGifs: overlayParameters.showGifs,
     usernameColor: overlayParameters.usernameColor,
     showReplies: overlayParameters.showReplies,
+    noticeColors: {
+      subs: overlayParameters.noticeColorSubs,
+      gifts: overlayParameters.noticeColorGifts,
+      raids: overlayParameters.noticeColorRaids,
+    },
+    showNoticeLabels: overlayParameters.showNoticeLabels,
     highlightPoints: overlayParameters.highlightPoints,
     highlightMentions: overlayParameters.highlightMentions,
     highlightFirstMessages: overlayParameters.highlightFirstMessages,
@@ -254,8 +263,12 @@ export const ChatPreview = ({
     messageFilterRegex: buildFilterRegex(decodeFiltersFromUrl(overlayParameters.messageFilters)),
     onlyRoles: parseRoles(overlayParameters.onlyRoles),
   };
-  const filteredMessages = fakeChatMessageEvents.filter((m) => isMessageVisible(m, visibility));
-  const hiddenCount = fakeChatMessageEvents.length - filteredMessages.length;
+  // Banners for channel events, such as subs and raids, only show for the kinds that are switched on
+  const sampleNotices = SAMPLE_NOTICES.flatMap((notice) => noticeToChatMessage(notice, parseNoticeKinds(overlayParameters.showNotices)) ?? []);
+  const sampleMessages: ChannelChatMessageEvent[] = [...fakeChatMessageEvents, ...sampleNotices];
+
+  const filteredMessages = sampleMessages.filter((m) => isMessageVisible(m, visibility));
+  const hiddenCount = sampleMessages.length - filteredMessages.length;
 
   return (
     <div className="chat-preview-container">
@@ -312,7 +325,7 @@ export const ChatPreview = ({
       </div>
       <div className="chat-preview-foot">
         <span className={`pill ${hiddenCount ? 'pill-warn' : ''}`}>
-          {hiddenCount} of {fakeChatMessageEvents.length} sample messages hidden by filters
+          {hiddenCount} of {sampleMessages.length} sample messages hidden by filters
         </span>
         <span>Sample chat. Real messages arrive from your channel.</span>
       </div>

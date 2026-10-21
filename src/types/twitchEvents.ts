@@ -82,6 +82,16 @@ interface ChatMessage {
   fragments: ChatMessageFragment[]; // Ordered list of chat message fragments.
 }
 
+// The kinds of channel events that the overlay can show as banners. Gifts include community gifts.
+export type NoticeKind = 'subs' | 'gifts' | 'raids' | 'announcements';
+
+// Set on a chat entry that was built from a Twitch notification instead of a chat message.
+export interface ChatNotice {
+  kind: NoticeKind;
+  label: string; // A short word for the banner, such as SUB or RAID.
+  color: string; // The banner color.
+}
+
 export interface ChannelChatMessageEvent extends EventsubEventBase<'channel.chat.message'> {
   broadcaster_user_id: string; // The broadcaster user ID.
   broadcaster_user_name: string; // The broadcaster display name.
@@ -97,6 +107,7 @@ export interface ChannelChatMessageEvent extends EventsubEventBase<'channel.chat
   color: string; // The color of the user’s name in the chat room.
   reply?: ChatMessageReply; // Metadata if this message is a reply.
   channel_points_custom_reward_id?: string; // The ID of a channel points custom reward that was redeemed.
+  notice?: ChatNotice; // Set when this entry is a banner for a channel event, such as a sub or a raid.
 }
 
 export interface ChannelChatMessageDeleteEvent extends EventsubEventBase<'channel.chat.message_delete'> {
@@ -188,7 +199,7 @@ interface ChannelChatNoticeBitsBadgeTier {
   tier: number; // The tier of the Bits badge the user just earned. For example, 100, 1000, or 10000.
 }
 
-interface ChannelChatNotificationEvent extends EventsubEventBase<'channel.chat.notification'> {
+export interface ChannelChatNotificationEvent extends EventsubEventBase<'channel.chat.notification'> {
   broadcaster_user_id: string; // The broadcaster user ID.
   broadcaster_user_name: string; // The broadcaster display name.
   broadcaster_user_login: string; // The broadcaster login.

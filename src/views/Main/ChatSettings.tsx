@@ -23,7 +23,9 @@ import {
   type UserFilterConfig,
 } from '../../utils/filters';
 import { parseRoles, ROLES, type Role } from '../../utils/messageVisibility';
+import { NOTICE_KINDS, parseNoticeKinds } from '../../utils/notices';
 import { EMPTY_HIGHLIGHT_CONFIG, type HighlightConfig, type HighlightRule } from '../../utils/highlights';
+import type { NoticeKind } from '../../types/twitchEvents';
 import { logger } from '../../utils/logger';
 import { buildUpdatedChatUrl, countChangedParams } from './buildChatUrl';
 import { ChatPreview } from './ChatPreview/ChatPreview';
@@ -47,14 +49,14 @@ const multiPartRegex = /^(?<value>[\d.]+)(?<unit>px|em|rem|vh|vw|ch)$/;
 const NICE_DROP_SHADOW_PRESET =
   'rgb(0, 0, 0) 2px 0px 0px, rgb(0, 0, 0) 1.75517px 0.958851px 0px, rgb(0, 0, 0) 1.0806px 1.68294px 0px, rgb(0, 0, 0) 0.141474px 1.99499px 0px, rgb(0, 0, 0) -0.832294px 1.81859px 0px, rgb(0, 0, 0) -1.60229px 1.19694px 0px, rgb(0, 0, 0) -1.97998px 0.28224px 0px, rgb(0, 0, 0) -1.87291px -0.701566px 0px, rgb(0, 0, 0) -1.30729px -1.5136px 0px, rgb(0, 0, 0) -0.421592px -1.95506px 0px, rgb(0, 0, 0) 0.567324px -1.91785px 0px, rgb(0, 0, 0) 1.41734px -1.41108px 0px, rgb(0, 0, 0) 1.92034px -0.558831px 0px';
 
-type TabId = 'look' | 'layout' | 'motion' | 'effects' | 'highlights' | 'filters';
+type TabId = 'look' | 'layout' | 'motion' | 'effects' | 'alerts' | 'filters';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'look', label: 'Look' },
   { id: 'layout', label: 'Layout' },
   { id: 'motion', label: 'Motion' },
   { id: 'effects', label: 'Effects' },
-  { id: 'highlights', label: 'Highlights' },
+  { id: 'alerts', label: 'Alerts' },
   { id: 'filters', label: 'Filters' },
 ];
 
@@ -90,7 +92,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
   const pendingChanges = countChangedParams(chatUrl, pendingUrl);
   // A count to show on a tab, so rules on a tab that is not open are not forgotten.
   const tabCounts: Partial<Record<TabId, number>> = {
-    highlights: highlightConfig.rules.length,
+    alerts: highlightConfig.rules.length + parseNoticeKinds(overlayParameters.showNotices).length,
     filters: (userFilterConfig.rules?.length ?? 0) + (messageFilterConfig.rules?.length ?? 0),
   };
 
@@ -214,17 +216,29 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
     );
   };
 
-  // The chosen roles are stored as one comma separated value, like `moderator,vip`.
-  const selectedRoles = parseRoles(overlayParameters.onlyRoles);
-  const roleSwitch = (role: Role, title: string, description: string) => (
-    <SwitchRow
-      id={`role-${role}`}
-      title={title}
-      description={description}
-      checked={selectedRoles.includes(role)}
-      onChange={(checked) => update({ onlyRoles: ROLES.filter((r) => (r === role ? checked : selectedRoles.includes(r))).join(',') })}
-    />
-  );
+  // Some settings keep a chosen subset as one comma separated value, like `moderator,vip`. One switch turns one item on or off.
+  const listSwitch = <T extends string>(
+    name: 'onlyRoles' | 'showNotices',
+    all: readonly T[],
+    parse: (value: string) => T[],
+    item: T,
+    title: string,
+    description: string,
+  ) => {
+    const selected = parse(overlayParameters[name]);
+    return (
+      <SwitchRow
+        id={`${name}-${item}`}
+        title={title}
+        description={description}
+        checked={selected.includes(item)}
+        onChange={(checked) => update({ [name]: all.filter((i) => (i === item ? checked : selected.includes(i))).join(',') } as Partial<Params>)}
+      />
+    );
+  };
+  const roleSwitch = (role: Role, title: string, description: string) => listSwitch('onlyRoles', ROLES, parseRoles, role, title, description);
+  const noticeSwitch = (kind: NoticeKind, title: string, description: string) =>
+    listSwitch('showNotices', NOTICE_KINDS, parseNoticeKinds, kind, title, description);
 
   // A slider and a number box for a plain number setting.
   const rangeSetting = (name: NumberKey, label: string, min: number, max: number, hint?: string) => (
@@ -439,9 +453,53 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             </div>
           </>
         );
-      case 'highlights':
+      case 'alerts':
         return (
           <>
+            <div className="group">
+              <h3>Event banners</h3>
+              <p className="hint">
+                Show channel events as colored banners in the chat. The overlay asks Twitch for these events only when at least one is on.
+              </p>
+              {noticeSwitch('subs', 'Subs and resubs', 'Includes the message that comes with a resub')}
+              {noticeSwitch('gifts', 'Gifted subs', 'A gift of many subs is one banner')}
+              {noticeSwitch('raids', 'Raids', 'When another channel raids you')}
+              {noticeSwitch('announcements', 'Announcements', 'Moderator announcements, in the announcement color')}
+            </div>
+            <div className="group">
+              <h3>Banner style</h3>
+              <p className="hint">
+                Banners also follow your font, text color, shadow, padding and corner radius. Announcements keep the color that the moderator chose.
+              </p>
+              {toggle('showNoticeLabels', 'Label', 'Start each banner with a word such as SUB or RAID')}
+              <FormField id="notice-color-subs" label="Sub color">
+                <ColorPicker
+                  id="notice-color-subs"
+                  placeholder="#a970ff"
+                  value={overlayParameters.noticeColorSubs}
+                  onChange={(noticeColorSubs) => update({ noticeColorSubs })}
+                  setToDefault={() => reset('noticeColorSubs')}
+                />
+              </FormField>
+              <FormField id="notice-color-gifts" label="Gifted sub color">
+                <ColorPicker
+                  id="notice-color-gifts"
+                  placeholder="#ff6ba6"
+                  value={overlayParameters.noticeColorGifts}
+                  onChange={(noticeColorGifts) => update({ noticeColorGifts })}
+                  setToDefault={() => reset('noticeColorGifts')}
+                />
+              </FormField>
+              <FormField id="notice-color-raids" label="Raid color">
+                <ColorPicker
+                  id="notice-color-raids"
+                  placeholder="#ff8800"
+                  value={overlayParameters.noticeColorRaids}
+                  onChange={(noticeColorRaids) => update({ noticeColorRaids })}
+                  setToDefault={() => reset('noticeColorRaids')}
+                />
+              </FormField>
+            </div>
             <div className="group">
               <h3>Highlights</h3>
               {/* The names are the sample chatters in ChatPreview. Keep them in step. */}

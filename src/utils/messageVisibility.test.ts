@@ -74,3 +74,15 @@ describe('isMessageVisible', () => {
     expect(isMessageVisible(makeMessage('Mod', 'hello', ['moderator']), settings)).toBe(true);
   });
 });
+
+describe('isMessageVisible - banners', () => {
+  it('always shows a banner, whatever the filters and roles say', () => {
+    const banner: ChannelChatMessageEvent = {
+      ...makeMessage('Alice', 'Alice subscribed.'),
+      notice: { kind: 'subs', label: 'SUB', color: '#a970ff' },
+    };
+    const usernameFilterRegex = buildFilterRegex({ rules: [{ matchType: 'exact', pattern: 'Alice', caseSensitive: false }] });
+    const messageFilterRegex = buildFilterRegex({ rules: [{ matchType: 'contains', pattern: 'subscribed', caseSensitive: false }] });
+    expect(isMessageVisible(banner, { usernameFilterRegex, messageFilterRegex, onlyRoles: ['moderator'] })).toBe(true);
+  });
+});
