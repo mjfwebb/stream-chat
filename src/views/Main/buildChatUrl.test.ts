@@ -149,7 +149,15 @@ describe('buildUpdatedChatUrl - appearance', () => {
 describe('buildUpdatedChatUrl - highlights', () => {
   it('omits every highlight setting at its default', () => {
     const result = new URL(buildUpdatedChatUrl(BASE_URL, { ...DEFAULT_CHAT_SETTINGS_VALUES }));
-    for (const param of ['highlight-points', 'highlight-mentions', 'highlight-first-messages', 'highlight-color', 'highlight-rules']) {
+    for (const param of [
+      'highlight-points',
+      'highlight-mentions',
+      'highlight-first-messages',
+      'highlight-mentions-color',
+      'highlight-first-color',
+      'highlight-points-color',
+      'highlight-rules',
+    ]) {
       expect(result.searchParams.get(param)).toBeNull();
     }
   });
@@ -159,14 +167,20 @@ describe('buildUpdatedChatUrl - highlights', () => {
       ...DEFAULT_CHAT_SETTINGS_VALUES,
       highlightPoints: false,
       highlightMentions: true,
-      highlightColor: '#ff8800',
+      highlightMentionsColor: '#ff8800',
+      highlightFirstColor: '#00a3ff',
+      highlightPointsColor: '#ff0066',
       highlightRules: 'abc',
     };
     const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
     expect(result.searchParams.get('highlight-points')).toBe('false');
     expect(result.searchParams.get('highlight-mentions')).toBe('true');
-    expect(result.searchParams.get('highlight-color')).toBe('#ff8800');
+    expect(result.searchParams.get('highlight-mentions-color')).toBe('#ff8800');
+    expect(result.searchParams.get('highlight-first-color')).toBe('#00a3ff');
+    expect(result.searchParams.get('highlight-points-color')).toBe('#ff0066');
     expect(result.searchParams.get('highlight-rules')).toBe('abc');
+    // The old single color is never written again
+    expect(result.searchParams.get('highlight-color')).toBeNull();
   });
 });
 

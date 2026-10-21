@@ -66,7 +66,10 @@ export const DEFAULT_CHAT_SETTINGS_VALUES = {
   highlightPoints: true,
   highlightMentions: false,
   highlightFirstMessages: false,
-  highlightColor: '#a970ff',
+  highlightMentionsColor: '#a970ff',
+  highlightFirstColor: '#00c853',
+  // Empty means Twitch's own purple gradient for channel point highlights
+  highlightPointsColor: '',
   highlightRules: '',
   showReplies: false,
   showNotices: '',
@@ -115,7 +118,9 @@ export const chatSearchParamsMap = {
   highlightPoints: 'highlight-points',
   highlightMentions: 'highlight-mentions',
   highlightFirstMessages: 'highlight-first-messages',
-  highlightColor: 'highlight-color',
+  highlightMentionsColor: 'highlight-mentions-color',
+  highlightFirstColor: 'highlight-first-color',
+  highlightPointsColor: 'highlight-points-color',
   highlightRules: 'highlight-rules',
   showReplies: 'show-replies',
   showNotices: 'show-notices',
@@ -127,6 +132,10 @@ export const chatSearchParamsMap = {
   usernameFilters: 'username-filters',
   messageFilters: 'message-filters',
 };
+
+// Before there was one color for mentions and first messages, it was set with highlight-color.
+// URLs that use it keep working: it is the fallback for both colors.
+export const LEGACY_HIGHLIGHT_COLOR_PARAM = 'highlight-color';
 
 // Settings that only accept a fixed set of values. The first value is the default.
 export const SETTING_OPTIONS = {

@@ -12,7 +12,7 @@ import { TextShadowStacker } from '../../components/TextShadowPicker/TextShadowS
 import { TextStrokeEditor } from '../../components/TextStrokePicker/TextStrokeEditor';
 import { useToast } from '../../components/Toast/useToast';
 import { UnitField } from '../../components/UnitField/UnitField';
-import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, SETTING_OPTIONS } from '../../constants';
+import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, LEGACY_HIGHLIGHT_COLOR_PARAM, SETTING_OPTIONS } from '../../constants';
 import {
   COMMON_BOT_NAMES,
   decodeFiltersFromUrl,
@@ -163,6 +163,13 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
         } else {
           patch[key] = raw;
         }
+      }
+
+      // An older URL has one color for mentions and first messages. A color set for just one of them wins.
+      const legacyColor = url.searchParams.get(LEGACY_HIGHLIGHT_COLOR_PARAM);
+      if (legacyColor && /^#[0-9a-f]{6}$/i.test(legacyColor)) {
+        patch.highlightMentionsColor ??= legacyColor;
+        patch.highlightFirstColor ??= legacyColor;
       }
 
       logger.debug('Loaded settings from URL', patch);
@@ -503,30 +510,43 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             <div className="group">
               <h3>Highlights</h3>
               {/* The names are the sample chatters in ChatPreview. Keep them in step. */}
-              {toggle(
-                'highlightPoints',
-                'Channel point highlights',
-                'Messages sent with Highlight My Message get Twitch’s purple style. Preview: Bob.',
+              {toggle('highlightPoints', 'Channel point highlights', 'Messages sent with Highlight My Message. Preview: Bob.')}
+              {overlayParameters.highlightPoints && (
+                <FormField id="highlight-points-color" label="Channel point color">
+                  <ColorPicker
+                    id="highlight-points-color"
+                    placeholder="#a970ff"
+                    value={overlayParameters.highlightPointsColor}
+                    onChange={(highlightPointsColor) => update({ highlightPointsColor })}
+                    setToDefault={() => reset('highlightPointsColor')}
+                    emptyLabel="Twitch style"
+                  />
+                </FormField>
               )}
-              {toggle(
-                'highlightMentions',
-                'Mentions of your channel',
-                'A message that mentions your channel name gets the highlight color. Preview: Diana.',
+              {toggle('highlightMentions', 'Mentions of your channel', 'A message that mentions your channel name. Preview: Diana.')}
+              {overlayParameters.highlightMentions && (
+                <FormField id="highlight-mentions-color" label="Mention color">
+                  <ColorPicker
+                    id="highlight-mentions-color"
+                    placeholder="#a970ff"
+                    value={overlayParameters.highlightMentionsColor}
+                    onChange={(highlightMentionsColor) => update({ highlightMentionsColor })}
+                    setToDefault={() => reset('highlightMentionsColor')}
+                  />
+                </FormField>
               )}
-              {toggle(
-                'highlightFirstMessages',
-                'First messages',
-                'A chatter’s first message in your channel gets the highlight color. Preview: Frank.',
+              {toggle('highlightFirstMessages', 'First messages', 'A chatter’s first message in your channel. Preview: Frank.')}
+              {overlayParameters.highlightFirstMessages && (
+                <FormField id="highlight-first-color" label="First message color">
+                  <ColorPicker
+                    id="highlight-first-color"
+                    placeholder="#00c853"
+                    value={overlayParameters.highlightFirstColor}
+                    onChange={(highlightFirstColor) => update({ highlightFirstColor })}
+                    setToDefault={() => reset('highlightFirstColor')}
+                  />
+                </FormField>
               )}
-              <FormField id="highlight-color" label="Highlight color">
-                <ColorPicker
-                  id="highlight-color"
-                  placeholder="#a970ff"
-                  value={overlayParameters.highlightColor}
-                  onChange={(highlightColor) => update({ highlightColor })}
-                  setToDefault={() => reset('highlightColor')}
-                />
-              </FormField>
             </div>
             <div className="group">
               <h3>Highlight rules</h3>
@@ -539,7 +559,12 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
                 addLabel="Add highlight rule"
                 placeholder="Text to match"
                 emptyText="No rules. Add one to color messages that contain a word."
-                createRule={() => ({ matchType: 'contains', pattern: '', caseSensitive: false, color: overlayParameters.highlightColor })}
+                createRule={() => ({
+                  matchType: 'contains',
+                  pattern: '',
+                  caseSensitive: false,
+                  color: DEFAULT_CHAT_SETTINGS_VALUES.highlightMentionsColor,
+                })}
                 extraControl={(rule, updateRule) => (
                   <input
                     type="color"

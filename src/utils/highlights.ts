@@ -16,7 +16,10 @@ export interface HighlightSettings {
   highlightPoints: boolean;
   highlightMentions: boolean;
   highlightFirstMessages: boolean;
-  highlightColor: string;
+  highlightMentionsColor: string;
+  highlightFirstColor: string;
+  // Empty means Twitch's own purple gradient. A color makes a channel point highlight a plain colored banner.
+  highlightPointsColor: string;
   highlightRules: CompiledHighlightRule[];
 }
 
@@ -38,7 +41,7 @@ const mentionsChannelOwner = (message: ChannelChatMessageEvent): boolean => {
 /** Decides whether a message is highlighted. Channel point highlights win, then rules (first match), then mentions, then first messages. */
 export const getHighlight = (message: ChannelChatMessageEvent, settings: HighlightSettings): Highlight | null => {
   if (settings.highlightPoints && message.message_type === 'channel_points_highlighted') {
-    return { type: 'spotlight' };
+    return settings.highlightPointsColor ? { type: 'color', color: settings.highlightPointsColor } : { type: 'spotlight' };
   }
 
   const matchingRule = settings.highlightRules.find((rule) => !rule.notMatching.test(message.message.text));
@@ -47,11 +50,11 @@ export const getHighlight = (message: ChannelChatMessageEvent, settings: Highlig
   }
 
   if (settings.highlightMentions && mentionsChannelOwner(message)) {
-    return { type: 'color', color: settings.highlightColor };
+    return { type: 'color', color: settings.highlightMentionsColor };
   }
 
   if (settings.highlightFirstMessages && message.message_type === 'user_intro') {
-    return { type: 'color', color: settings.highlightColor };
+    return { type: 'color', color: settings.highlightFirstColor };
   }
 
   return null;

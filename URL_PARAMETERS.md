@@ -43,7 +43,10 @@ This document describes the URL parameters you can use to customize the chat ove
 | `highlight-points`              | Style channel point highlighted messages like Twitch does           | `false`             | `true`                  |
 | `highlight-mentions`            | Highlight messages that mention the channel                         | `true`              | `false`                 |
 | `highlight-first-messages`      | Highlight a chatter's first message in the channel                  | `true`              | `false`                 |
-| `highlight-color`               | Color for mentions and first messages                               | `#ff8800`           | `#a970ff`               |
+| `highlight-mentions-color`      | Color for mentions of the channel (6-digit hex)                     | `#ff8800`           | `#a970ff`               |
+| `highlight-first-color`         | Color for first messages (6-digit hex)                              | `#00a3ff`           | `#00c853`               |
+| `highlight-points-color`        | Color for channel point highlights (6-digit hex)                    | `#ff0066`           | Twitch's purple style   |
+| `highlight-color`               | Older parameter: the color for both mentions and first messages     | `#ff8800`           |                         |
 | `highlight-rules`               | Rules that color matching messages (set in the editor)              |                     |                         |
 | `show-replies`                  | Show which message a reply answers, above the reply                 | `true`              | `false`                 |
 | `only-roles`                    | Show only these roles, comma separated                              | `moderator,vip`     | all roles               |

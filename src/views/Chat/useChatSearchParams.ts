@@ -1,4 +1,4 @@
-import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, SETTING_OPTIONS } from '../../constants';
+import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, LEGACY_HIGHLIGHT_COLOR_PARAM, SETTING_OPTIONS } from '../../constants';
 import { buildFilterRegex, decodeFiltersFromUrl } from '../../utils/filters';
 import { compileHighlightRules, type HighlightRule } from '../../utils/highlights';
 import { parseRoles } from '../../utils/messageVisibility';
@@ -48,7 +48,12 @@ export const useChatSearchParams = () => {
   const highlightPoints = searchParams.get(params.highlightPoints) === 'false' ? false : defaults.highlightPoints;
   const highlightMentions = searchParams.get(params.highlightMentions) === 'true' ? true : defaults.highlightMentions;
   const highlightFirstMessages = searchParams.get(params.highlightFirstMessages) === 'true' ? true : defaults.highlightFirstMessages;
-  const highlightColor = searchParams.get(params.highlightColor) || defaults.highlightColor;
+  // One color for each kind. The old highlight-color parameter is the fallback for mentions and first messages.
+  // An empty points color means Twitch's own purple gradient.
+  const legacyHighlightColor = hexParam(searchParams, LEGACY_HIGHLIGHT_COLOR_PARAM, '');
+  const highlightMentionsColor = hexParam(searchParams, params.highlightMentionsColor, legacyHighlightColor || defaults.highlightMentionsColor);
+  const highlightFirstColor = hexParam(searchParams, params.highlightFirstColor, legacyHighlightColor || defaults.highlightFirstColor);
+  const highlightPointsColor = hexParam(searchParams, params.highlightPointsColor, defaults.highlightPointsColor);
 
   // Controls whether a reply shows a line about the message it answers. Defaults to false.
   const showReplies = searchParams.get(params.showReplies) === 'true' ? true : defaults.showReplies;
@@ -158,7 +163,9 @@ export const useChatSearchParams = () => {
     highlightPoints,
     highlightMentions,
     highlightFirstMessages,
-    highlightColor,
+    highlightMentionsColor,
+    highlightFirstColor,
+    highlightPointsColor,
     highlightRules,
     showReplies,
     noticeColors,
@@ -205,7 +212,9 @@ export const chatEntryStyleProps = (settings: ReturnType<typeof useChatSearchPar
   highlightPoints: settings.highlightPoints,
   highlightMentions: settings.highlightMentions,
   highlightFirstMessages: settings.highlightFirstMessages,
-  highlightColor: settings.highlightColor,
+  highlightMentionsColor: settings.highlightMentionsColor,
+  highlightFirstColor: settings.highlightFirstColor,
+  highlightPointsColor: settings.highlightPointsColor,
   highlightRules: settings.highlightRules,
   showReplies: settings.showReplies,
   noticeColors: settings.noticeColors,

@@ -73,7 +73,9 @@ export const ChatEntry = ({
   highlightPoints,
   highlightMentions,
   highlightFirstMessages,
-  highlightColor,
+  highlightMentionsColor,
+  highlightFirstColor,
+  highlightPointsColor,
   highlightRules,
 }: ChatEntryProps) => {
   const gigantified = chatMessage.message_type === 'power_ups_gigantified_emote';
@@ -83,7 +85,15 @@ export const ChatEntry = ({
   const noticeColor = notice ? (notice.kind === 'announcements' ? notice.color : noticeColors[notice.kind]) : undefined;
   const highlight: Highlight | null = noticeColor
     ? { type: 'color', color: noticeColor }
-    : getHighlight(chatMessage, { highlightPoints, highlightMentions, highlightFirstMessages, highlightColor, highlightRules });
+    : getHighlight(chatMessage, {
+        highlightPoints,
+        highlightMentions,
+        highlightFirstMessages,
+        highlightMentionsColor,
+        highlightFirstColor,
+        highlightPointsColor,
+        highlightRules,
+      });
   const actionMessage = chatMessage.message.text.startsWith('\u0001ACTION');
 
   // Gifs currently can't be combined with other fragments, so a disabled gif means an empty message
