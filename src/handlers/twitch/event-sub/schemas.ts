@@ -1,7 +1,7 @@
 import z from 'zod';
 
 const SubscriptionEventSchema = z.object({
-  event: z.record(z.any()),
+  event: z.record(z.string(), z.any()),
   subscription: z.object({
     type: z.string(),
   }),

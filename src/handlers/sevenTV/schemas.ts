@@ -6,7 +6,7 @@ const sevenTVEmoteDataSetOwnerSchema = z.nullable(
     username: z.string(),
     display_name: z.string(),
     avatar_url: z.optional(z.string()),
-    style: z.unknown(),
+    style: z.optional(z.unknown()),
     roles: z.optional(z.array(z.string())),
   }),
 );
@@ -61,7 +61,7 @@ export const sevenTVUserSchema = z.object({
   display_name: z.string(),
   created_at: z.number(),
   avatar_url: z.string(),
-  style: z.unknown(),
+  style: z.optional(z.unknown()),
   emote_sets: z.optional(
     z.array(
       z.object({
