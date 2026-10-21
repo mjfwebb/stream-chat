@@ -3,7 +3,8 @@ import type { CSSProperties } from 'react';
 import type { UsernameColorMode } from '../../constants';
 import { ChannelChatMessageEvent } from '../../types/twitchEvents';
 import { colorValueBackground, firstColor, sideColors } from '../../utils/colorValue';
-import { getHighlight, type Highlight, type HighlightSettings } from '../../utils/highlights';
+import { getHighlight, highlightSource, type Highlight, type HighlightSettings } from '../../utils/highlights';
+import { rolesOf } from '../../utils/messageVisibility';
 import { ChatImageRenderer } from './ChatImageRenderer';
 import { contrastCorrected } from './contrastCorrected';
 import { UserBadges } from './UserBadges';
@@ -88,7 +89,7 @@ export const ChatEntry = ({
   // An announcement keeps the color that Twitch sent with it.
   const noticeColor = notice ? (notice.kind === 'announcements' ? notice.color : noticeColors[notice.kind]) : undefined;
   const highlight: Highlight | null = noticeColor
-    ? { type: 'color', color: noticeColor }
+    ? { type: 'color', color: noticeColor, source: 'notice' }
     : getHighlight(chatMessage, {
         highlightPoints,
         highlightMentions,
@@ -112,8 +113,24 @@ export const ChatEntry = ({
     avatarUrl: userInformationStore[chatMessage.chatter_user_id]?.profile_image_url ?? '',
   };
 
+  // Classes and data attributes that custom CSS can use, such as `.chat-message--moderator`. CUSTOMISING.md lists them.
+  const source = highlight ? highlightSource(highlight) : null;
+  const messageClassName = classNames(
+    'chat-message',
+    rolesOf(chatMessage).map((role) => `chat-message--${role}`),
+    source && source !== 'notice' && ['chat-message--highlight', `chat-message--highlight-${source}`],
+    notice && ['chat-message--notice', `chat-message--notice-${notice.kind}`],
+    chatMessage.reply && 'chat-message--reply',
+    actionMessage && 'chat-message--action',
+    gigantified && 'chat-message--gigantified',
+  );
+
   return (
-    <button className={classNames('chat-message')}>
+    <button
+      className={messageClassName}
+      data-user={chatMessage.chatter_user_login ? chatMessage.chatter_user_login.toLowerCase() : undefined}
+      data-user-id={chatMessage.chatter_user_id || undefined}
+    >
       <div
         className={classNames(
           'chat-message-body',

@@ -11,8 +11,14 @@ export const EMPTY_HIGHLIGHT_CONFIG: HighlightConfig = { rules: [] };
 
 export type CompiledHighlightRule = { notMatching: RegExp; color: string };
 
+// Why a message is highlighted. The overlay turns it into a class, such as chat-message--highlight-mention.
+export type HighlightSource = 'points' | 'mention' | 'first' | 'rule' | 'notice';
+
 // How a highlighted message looks: Twitch's own purple style for channel point highlights, or a color.
-export type Highlight = { type: 'spotlight' } | { type: 'color'; color: string };
+export type Highlight = { type: 'spotlight' } | { type: 'color'; color: string; source: HighlightSource };
+
+/** The reason for a highlight. The Twitch style is always for a channel point highlight. */
+export const highlightSource = (highlight: Highlight): HighlightSource => (highlight.type === 'spotlight' ? 'points' : highlight.source);
 
 export interface HighlightSettings {
   highlightPoints: boolean;
@@ -45,20 +51,20 @@ const mentionsChannelOwner = (message: ChannelChatMessageEvent): boolean => {
 /** Decides whether a message is highlighted. Channel point highlights win, then rules (first match), then mentions, then first messages. */
 export const getHighlight = (message: ChannelChatMessageEvent, settings: HighlightSettings): Highlight | null => {
   if (settings.highlightPoints && message.message_type === 'channel_points_highlighted') {
-    return settings.highlightPointsColor ? { type: 'color', color: settings.highlightPointsColor } : { type: 'spotlight' };
+    return settings.highlightPointsColor ? { type: 'color', color: settings.highlightPointsColor, source: 'points' } : { type: 'spotlight' };
   }
 
   const matchingRule = settings.highlightRules.find((rule) => !rule.notMatching.test(message.message.text));
   if (matchingRule) {
-    return { type: 'color', color: matchingRule.color };
+    return { type: 'color', color: matchingRule.color, source: 'rule' };
   }
 
   if (settings.highlightMentions && mentionsChannelOwner(message)) {
-    return { type: 'color', color: settings.highlightMentionsColor };
+    return { type: 'color', color: settings.highlightMentionsColor, source: 'mention' };
   }
 
   if (settings.highlightFirstMessages && message.message_type === 'user_intro') {
-    return { type: 'color', color: settings.highlightFirstColor };
+    return { type: 'color', color: settings.highlightFirstColor, source: 'first' };
   }
 
   return null;

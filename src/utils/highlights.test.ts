@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ChannelChatMessageEvent } from '../types/twitchEvents';
 import { decodeFiltersFromUrl, encodeFiltersToUrl } from './filters';
-import { compileHighlightRules, getHighlight, type HighlightConfig, type HighlightSettings } from './highlights';
+import { compileHighlightRules, getHighlight, highlightSource, type HighlightConfig, type HighlightSettings } from './highlights';
 
 const makeMessage = (overrides: Partial<ChannelChatMessageEvent> & { text?: string } = {}): ChannelChatMessageEvent => {
   const { text = 'hello', ...rest } = overrides;
@@ -82,7 +82,11 @@ describe('getHighlight', () => {
         { matchType: 'contains', pattern: 'first', caseSensitive: false, color: '#222222' },
       ],
     });
-    expect(getHighlight(makeMessage({ text: 'the first one' }), { ...noSettings, highlightRules })).toEqual({ type: 'color', color: '#111111' });
+    expect(getHighlight(makeMessage({ text: 'the first one' }), { ...noSettings, highlightRules })).toEqual({
+      type: 'color',
+      color: '#111111',
+      source: 'rule',
+    });
   });
 
   it('highlights a mention of the channel owner, ignoring case', () => {
@@ -92,7 +96,7 @@ describe('getHighlight', () => {
         fragments: [{ type: 'mention', text: '@ATHANO', mention: { user_id: '1', user_name: 'Athano', user_login: 'athano' } }],
       },
     });
-    expect(getHighlight(message, { ...noSettings, highlightMentions: true })).toEqual({ type: 'color', color: '#a970ff' });
+    expect(getHighlight(message, { ...noSettings, highlightMentions: true })).toEqual({ type: 'color', color: '#a970ff', source: 'mention' });
   });
 
   it('does not highlight a mention of someone else', () => {
@@ -108,7 +112,7 @@ describe('getHighlight', () => {
   it('highlights a first message when switched on', () => {
     const message = makeMessage({ message_type: 'user_intro' });
     expect(getHighlight(message, noSettings)).toBeNull();
-    expect(getHighlight(message, { ...noSettings, highlightFirstMessages: true })).toEqual({ type: 'color', color: '#00c853' });
+    expect(getHighlight(message, { ...noSettings, highlightFirstMessages: true })).toEqual({ type: 'color', color: '#00c853', source: 'first' });
   });
 
   it('uses a different color for each kind', () => {
@@ -127,9 +131,13 @@ describe('getHighlight', () => {
         fragments: [{ type: 'mention', text: '@athano', mention: { user_id: '1', user_name: 'Athano', user_login: 'athano' } }],
       },
     });
-    expect(getHighlight(mention, settings)).toEqual({ type: 'color', color: '#111111' });
-    expect(getHighlight(makeMessage({ message_type: 'user_intro' }), settings)).toEqual({ type: 'color', color: '#222222' });
-    expect(getHighlight(makeMessage({ message_type: 'channel_points_highlighted' }), settings)).toEqual({ type: 'color', color: '#333333' });
+    expect(getHighlight(mention, settings)).toEqual({ type: 'color', color: '#111111', source: 'mention' });
+    expect(getHighlight(makeMessage({ message_type: 'user_intro' }), settings)).toEqual({ type: 'color', color: '#222222', source: 'first' });
+    expect(getHighlight(makeMessage({ message_type: 'channel_points_highlighted' }), settings)).toEqual({
+      type: 'color',
+      color: '#333333',
+      source: 'points',
+    });
   });
 
   it('keeps Twitch’s purple style for channel point highlights until a color is chosen', () => {
@@ -138,7 +146,13 @@ describe('getHighlight', () => {
     expect(getHighlight(makeMessage({ message_type: 'channel_points_highlighted' }), { ...settings, highlightPointsColor: '#ff0000' })).toEqual({
       type: 'color',
       color: '#ff0000',
+      source: 'points',
     });
+  });
+
+  it('names the reason for every highlight', () => {
+    expect(highlightSource({ type: 'spotlight' })).toBe('points');
+    expect(highlightSource({ type: 'color', color: '#111111', source: 'mention' })).toBe('mention');
   });
 
   it('prefers a channel point highlight over a matching rule', () => {
