@@ -8,6 +8,9 @@ export const BETTER_TTV_WEBSOCKET_URL = 'wss://sockets.betterttv.net/ws';
 
 export const SECOND_MS = 1000;
 export const MINUTE_MS = 60000;
+export const HOUR_MS = 3600000;
+// Twitch asks apps to validate their token every hour.
+export const TOKEN_VALIDATION_INTERVAL_MS = HOUR_MS;
 export const MAX_TWITCH_MESSAGE_LENGTH = 500;
 export const CHAT_MESSAGES_TO_RETAIN = 20;
 

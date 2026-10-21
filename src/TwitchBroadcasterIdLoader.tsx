@@ -1,18 +1,20 @@
+import { useEffect } from 'react';
 import { fetchBadges } from './handlers/twitch/helix/fetchBadges';
 import { fetchCheers } from './handlers/twitch/helix/fetchCheers';
 import { fetchUserInformation } from './handlers/twitch/helix/fetchUserInformation';
-import { validateAccessToken } from './handlers/twitch/id/validateAccessToken';
+import { checkAccessToken } from './handlers/twitch/id/checkAccessToken';
+import { TOKEN_VALIDATION_INTERVAL_MS } from './constants';
 import { useMount } from './hooks/useMount';
 import { loadEmotes } from './loadEmotes';
 import { persistedStore, store } from './store/store';
 import { logger } from './utils/logger';
 
 async function getBroadcasterIdFromAccessToken(): Promise<{ id: string; login: string } | null> {
-  const result = await validateAccessToken();
-  if (result) {
+  const result = await checkAccessToken();
+  if (result.status === 'valid') {
     return {
-      id: result.user_id,
-      login: result.login,
+      id: result.data.user_id,
+      login: result.data.login,
     };
   }
 
@@ -34,6 +36,12 @@ export const TwitchBroadcasterIdLoader = () => {
   const userId = store((s) => s.userId);
   const userLogin = store((s) => s.userLogin);
   const channel = persistedStore((s) => s.channel);
+
+  // An overlay can stay open in OBS for days, so keep checking after the first load.
+  useEffect(() => {
+    const timer = setInterval(() => void checkAccessToken(), TOKEN_VALIDATION_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, []);
 
   useMount(() => {
     async function getBroadcasterId() {

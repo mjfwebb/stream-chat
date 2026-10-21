@@ -1,0 +1,26 @@
+.token-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--warn-soft);
+  border: 1px solid var(--warn);
+  border-radius: var(--radius);
+  color: var(--warn);
+
+  &-text {
+    display: grid;
+    min-width: 0;
+
+    b {
+      font-weight: 600;
+    }
+
+    span {
+      color: var(--fg);
+    }
+  }
+}

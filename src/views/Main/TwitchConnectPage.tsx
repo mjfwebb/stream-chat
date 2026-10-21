@@ -7,6 +7,7 @@ import { DEFAULT_CHAT_SETTINGS_VALUES, TWITCH_AUTH_URL } from '../../constants';
 import { persistedStore, store } from '../../store/store';
 import { ChatPreview } from './ChatPreview/ChatPreview';
 import { ChatSettings } from './ChatSettings';
+import { TokenExpiredBanner } from './TokenExpiredBanner';
 
 import './TwitchConnectPage.less';
 
@@ -91,6 +92,8 @@ export const TwitchConnectPage = () => {
           </div>
         </header>
 
+        <TokenExpiredBanner onReconnect={handleLogin} />
+
         {/* Kept mounted so unsaved editor changes survive a trip to the OBS tab. */}
         <div hidden={view !== 'editor'}>
           <ChatSettings chatUrl={chatUrl} setChatUrl={setChatUrl} />
@@ -164,35 +167,38 @@ export const TwitchConnectPage = () => {
   }
 
   return (
-    <div className="studio-wrap twitch-connect-page-logged-out">
-      <div className="logged-out-copy">
-        <h1>Your chat, on stream, looking exactly how you want.</h1>
-        <p className="lead">
-          Design an overlay with a live preview, then paste one URL into OBS. Emotes from Twitch, 7TV, BetterTTV and FrankerFaceZ show up as they do
-          in chat.
-        </p>
-        <Button type="twitch" onClick={handleLogin}>
-          Connect with Twitch
-        </Button>
-        <div className="permissions">
-          <b>What you allow</b>
-          <ul>
-            <li>
-              <span className="permissions-yes" aria-hidden="true">
-                ✓
-              </span>{' '}
-              Read chat in channels you open (<code>user:read:chat</code>)
-            </li>
-            <li>
-              <span className="permissions-no" aria-hidden="true">
-                ✕
-              </span>{' '}
-              Post messages, moderate or change your channel
-            </li>
-          </ul>
+    <>
+      <TokenExpiredBanner onReconnect={handleLogin} />
+      <div className="studio-wrap twitch-connect-page-logged-out">
+        <div className="logged-out-copy">
+          <h1>Your chat, on stream, looking exactly how you want.</h1>
+          <p className="lead">
+            Design an overlay with a live preview, then paste one URL into OBS. Emotes from Twitch, 7TV, BetterTTV and FrankerFaceZ show up as they do
+            in chat.
+          </p>
+          <Button type="twitch" onClick={handleLogin}>
+            Connect with Twitch
+          </Button>
+          <div className="permissions">
+            <b>What you allow</b>
+            <ul>
+              <li>
+                <span className="permissions-yes" aria-hidden="true">
+                  ✓
+                </span>{' '}
+                Read chat in channels you open (<code>user:read:chat</code>)
+              </li>
+              <li>
+                <span className="permissions-no" aria-hidden="true">
+                  ✕
+                </span>{' '}
+                Post messages, moderate or change your channel
+              </li>
+            </ul>
+          </div>
         </div>
+        <ChatPreview overlayParameters={DEFAULT_CHAT_SETTINGS_VALUES} />
       </div>
-      <ChatPreview overlayParameters={DEFAULT_CHAT_SETTINGS_VALUES} />
-    </div>
+    </>
   );
 };
