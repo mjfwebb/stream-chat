@@ -14,6 +14,7 @@ import { useToast } from '../../components/Toast/useToast';
 import { UnitField } from '../../components/UnitField/UnitField';
 import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, SETTING_OPTIONS } from '../../constants';
 import { decodeFiltersFromUrl, EMPTY_FILTER_CONFIG, encodeFiltersToUrl, type UserFilterConfig } from '../../utils/filters';
+import { EMPTY_HIGHLIGHT_CONFIG, type HighlightConfig, type HighlightRule } from '../../utils/highlights';
 import { logger } from '../../utils/logger';
 import { buildUpdatedChatUrl, countChangedParams } from './buildChatUrl';
 import { ChatPreview } from './ChatPreview/ChatPreview';
@@ -37,13 +38,14 @@ const multiPartRegex = /^(?<value>[\d.]+)(?<unit>px|em|rem|vh|vw|ch)$/;
 const NICE_DROP_SHADOW_PRESET =
   'rgb(0, 0, 0) 2px 0px 0px, rgb(0, 0, 0) 1.75517px 0.958851px 0px, rgb(0, 0, 0) 1.0806px 1.68294px 0px, rgb(0, 0, 0) 0.141474px 1.99499px 0px, rgb(0, 0, 0) -0.832294px 1.81859px 0px, rgb(0, 0, 0) -1.60229px 1.19694px 0px, rgb(0, 0, 0) -1.97998px 0.28224px 0px, rgb(0, 0, 0) -1.87291px -0.701566px 0px, rgb(0, 0, 0) -1.30729px -1.5136px 0px, rgb(0, 0, 0) -0.421592px -1.95506px 0px, rgb(0, 0, 0) 0.567324px -1.91785px 0px, rgb(0, 0, 0) 1.41734px -1.41108px 0px, rgb(0, 0, 0) 1.92034px -0.558831px 0px';
 
-type TabId = 'look' | 'layout' | 'motion' | 'effects' | 'filters';
+type TabId = 'look' | 'layout' | 'motion' | 'effects' | 'highlights' | 'filters';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'look', label: 'Look' },
   { id: 'layout', label: 'Layout' },
   { id: 'motion', label: 'Motion' },
   { id: 'effects', label: 'Effects' },
+  { id: 'highlights', label: 'Highlights' },
   { id: 'filters', label: 'Filters' },
 ];
 
@@ -54,6 +56,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
   const [textStrokeSettings, setTextStrokeSettings] = useState(DEFAULT_CHAT_SETTINGS_VALUES.textStrokeSettings);
   const [userFilterConfig, setUserFilterConfig] = useState<UserFilterConfig>(EMPTY_FILTER_CONFIG);
   const [messageFilterConfig, setMessageFilterConfig] = useState<UserFilterConfig>(EMPTY_FILTER_CONFIG);
+  const [highlightConfig, setHighlightConfig] = useState<HighlightConfig>(EMPTY_HIGHLIGHT_CONFIG);
   const [loadSettingsError, setLoadSettingsError] = useState('');
   const [loadingUrl, setLoadingUrl] = useState('');
   const [importOpen, setImportOpen] = useState(false);
@@ -72,10 +75,15 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
     textStrokeSettings,
     usernameFilters: encodeFiltersToUrl(userFilterConfig),
     messageFilters: encodeFiltersToUrl(messageFilterConfig),
+    highlightRules: encodeFiltersToUrl(highlightConfig),
   };
   const pendingUrl = buildUpdatedChatUrl(chatUrl, currentParameters);
   const pendingChanges = countChangedParams(chatUrl, pendingUrl);
-  const filterRuleCount = (userFilterConfig.rules?.length ?? 0) + (messageFilterConfig.rules?.length ?? 0);
+  // A count to show on a tab, so rules on a tab that is not open are not forgotten.
+  const tabCounts: Partial<Record<TabId, number>> = {
+    highlights: highlightConfig.rules.length,
+    filters: (userFilterConfig.rules?.length ?? 0) + (messageFilterConfig.rules?.length ?? 0),
+  };
 
   const handleUpdateUrl = () => {
     setChatUrl(pendingUrl);
@@ -88,6 +96,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
     setTextStrokeSettings(DEFAULT_CHAT_SETTINGS_VALUES.textStrokeSettings);
     setUserFilterConfig(EMPTY_FILTER_CONFIG);
     setMessageFilterConfig(EMPTY_FILTER_CONFIG);
+    setHighlightConfig(EMPTY_HIGHLIGHT_CONFIG);
   };
 
   const confirmReset = () => {
@@ -122,6 +131,8 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
           setUserFilterConfig(decodeFiltersFromUrl(raw));
         } else if (key === 'messageFilters') {
           setMessageFilterConfig(decodeFiltersFromUrl(raw));
+        } else if (key === 'highlightRules') {
+          setHighlightConfig(decodeFiltersFromUrl<HighlightRule>(raw));
         } else if (urlParam in multiPartSettingsMapForLoading) {
           const match = raw.match(multiPartRegex);
           if (match?.groups) {
@@ -406,6 +417,47 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             </div>
           </>
         );
+      case 'highlights':
+        return (
+          <>
+            <div className="group">
+              <h3>Highlights</h3>
+              {toggle('highlightPoints', 'Channel point highlights', 'Messages sent with Highlight My Message get Twitch’s purple style')}
+              {toggle('highlightMentions', 'Mentions of your channel', 'A message that mentions your channel name gets the highlight color')}
+              {toggle('highlightFirstMessages', 'First messages', 'A chatter’s first message in your channel gets the highlight color')}
+              <FormField id="highlight-color" label="Highlight color">
+                <ColorPicker
+                  id="highlight-color"
+                  placeholder="#a970ff"
+                  value={overlayParameters.highlightColor}
+                  onChange={(highlightColor) => update({ highlightColor })}
+                  setToDefault={() => reset('highlightColor')}
+                />
+              </FormField>
+            </div>
+            <div className="group">
+              <h3>Highlight rules</h3>
+              <p className="hint">A message that matches a rule gets that rule’s color. The first matching rule wins.</p>
+              <FilterEditor<HighlightRule>
+                value={highlightConfig}
+                onChange={setHighlightConfig}
+                addLabel="Add highlight rule"
+                placeholder="Text to match"
+                emptyText="No rules. Add one to color messages that contain a word."
+                createRule={() => ({ matchType: 'contains', pattern: '', caseSensitive: false, color: overlayParameters.highlightColor })}
+                extraControl={(rule, updateRule) => (
+                  <input
+                    type="color"
+                    className="filter-editor-color"
+                    value={rule.color}
+                    onChange={(e) => updateRule({ color: e.target.value })}
+                    aria-label="Highlight color for this rule"
+                  />
+                )}
+              />
+            </div>
+          </>
+        );
       case 'filters':
         return (
           <>
@@ -508,7 +560,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
                 onKeyDown={(e) => handleTabKeyDown(e, index)}
               >
                 {tab.label}
-                {tab.id === 'filters' && filterRuleCount > 0 && <span className="tabs-count">{filterRuleCount}</span>}
+                {(tabCounts[tab.id] ?? 0) > 0 && <span className="tabs-count">{tabCounts[tab.id]}</span>}
               </button>
             ))}
           </div>

@@ -1,30 +1,42 @@
+import type { ReactNode } from 'react';
 import type { UserFilterConfig, UserFilterRule } from '../../utils/filters';
 import { Button } from '../Button/Button';
 
 import './FilterEditor.less';
 
-type FilterEditorProps = {
-  value: UserFilterConfig;
-  onChange: (cfg: UserFilterConfig) => void;
+type FilterEditorProps<Rule extends UserFilterRule> = {
+  value: UserFilterConfig<Rule>;
+  onChange: (cfg: UserFilterConfig<Rule>) => void;
   addLabel?: string;
   placeholder?: string;
   emptyText?: string;
+  // For rules with extra fields: how a new rule starts, and an extra control that edits those fields.
+  createRule?: () => Rule;
+  extraControl?: (rule: Rule, update: (patch: Partial<Rule>) => void) => ReactNode;
 };
 
 const matchTypes: UserFilterRule['matchType'][] = ['exact', 'contains', 'wildcard'];
 
-export function FilterEditor({ value, onChange, addLabel = 'Add rule', placeholder = 'pattern', emptyText = 'No rules yet.' }: FilterEditorProps) {
+export function FilterEditor<Rule extends UserFilterRule = UserFilterRule>({
+  value,
+  onChange,
+  addLabel = 'Add rule',
+  placeholder = 'pattern',
+  emptyText = 'No rules yet.',
+  createRule,
+  extraControl,
+}: FilterEditorProps<Rule>) {
   const rules = value.rules ?? [];
   const hasRules = rules.length > 0;
 
   const addRule = () => {
-    const next: UserFilterRule = { matchType: 'exact', pattern: '', caseSensitive: false };
+    const next = createRule ? createRule() : ({ matchType: 'exact', pattern: '', caseSensitive: false } as Rule);
     onChange({ rules: [...rules, next] });
   };
 
-  const updateRule = (idx: number, patch: Partial<UserFilterRule>) => {
+  const updateRule = (idx: number, patch: Partial<Rule>) => {
     const next = [...rules];
-    next[idx] = { ...next[idx], ...patch } as UserFilterRule;
+    next[idx] = { ...next[idx], ...patch };
     onChange({ rules: next });
   };
 
@@ -37,10 +49,10 @@ export function FilterEditor({ value, onChange, addLabel = 'Add rule', placehold
       {hasRules ? (
         <div className="filter-editor-rules">
           {rules.map((r, idx) => (
-            <div className="filter-editor-rule" key={idx}>
+            <div className={`filter-editor-rule ${extraControl ? 'filter-editor-rule-extra' : ''}`} key={idx}>
               <select
                 value={r.matchType}
-                onChange={(e) => updateRule(idx, { matchType: e.target.value as UserFilterRule['matchType'] })}
+                onChange={(e) => updateRule(idx, { matchType: e.target.value as UserFilterRule['matchType'] } as Partial<Rule>)}
                 aria-label="Match type"
               >
                 {matchTypes.map((mt) => (
@@ -53,12 +65,17 @@ export function FilterEditor({ value, onChange, addLabel = 'Add rule', placehold
                 type="text"
                 placeholder={placeholder}
                 value={r.pattern}
-                onChange={(e) => updateRule(idx, { pattern: e.target.value })}
+                onChange={(e) => updateRule(idx, { pattern: e.target.value } as Partial<Rule>)}
                 autoComplete="off"
                 aria-label="Pattern"
               />
+              {extraControl?.(r, (patch) => updateRule(idx, patch))}
               <label className="filter-editor-case">
-                <input type="checkbox" checked={!!r.caseSensitive} onChange={(e) => updateRule(idx, { caseSensitive: e.target.checked })} />
+                <input
+                  type="checkbox"
+                  checked={!!r.caseSensitive}
+                  onChange={(e) => updateRule(idx, { caseSensitive: e.target.checked } as Partial<Rule>)}
+                />
                 Case
               </label>
               <button type="button" className="filter-editor-remove" onClick={() => removeRule(idx)} aria-label="Remove rule">

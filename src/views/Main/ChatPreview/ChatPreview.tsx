@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DEFAULT_CHAT_SETTINGS_VALUES } from '../../../constants';
 import { ChannelChatMessageEvent } from '../../../types/twitchEvents';
 import { buildFilterRegex, decodeFiltersFromUrl, type UserFilterConfig } from '../../../utils/filters';
+import { compileHighlightRules, type HighlightRule } from '../../../utils/highlights';
 import { Button } from '../../../components/Button/Button';
 import { ChatEntry } from '../../Chat/ChatEntry';
 import { overlayCssVariables } from '../../Chat/overlayStyle';
@@ -56,8 +57,13 @@ const fakeTwitchMessages: ChannelChatMessageEvent['message'][] = [
     ],
   },
   {
-    text: 'Loving the stream, keep it up! Cheer169',
+    text: '@Athano Loving the stream, keep it up! Cheer169',
     fragments: [
+      {
+        type: 'mention',
+        text: '@Athano ',
+        mention: { user_id: '0', user_name: 'Athano', user_login: 'athano' },
+      },
       {
         type: 'text',
         text: 'Loving the stream, keep it up!',
@@ -91,6 +97,15 @@ const fakeTwitchMessages: ChannelChatMessageEvent['message'][] = [
       },
     ],
   },
+  {
+    text: 'Hi chat, first time here!',
+    fragments: [
+      {
+        type: 'text',
+        text: 'Hi chat, first time here!',
+      },
+    ],
+  },
 ];
 
 const fakeUsers: {
@@ -99,9 +114,18 @@ const fakeUsers: {
   color: string;
   avatarUrl: string;
   badges: ChannelChatMessageEvent['badges'];
+  // Lets a sample message show a Twitch message type, such as a channel point highlight
+  messageType?: ChannelChatMessageEvent['message_type'];
 }[] = [
   { name: 'Alice', login: 'alice', color: '#ff5733', avatarUrl: 'https://i.pravatar.cc/256?img=10', badges: [] },
-  { name: 'Bob', login: 'bob', color: '#33ff57', avatarUrl: 'https://i.pravatar.cc/256?img=15', badges: [] },
+  {
+    name: 'Bob',
+    login: 'bob',
+    color: '#33ff57',
+    avatarUrl: 'https://i.pravatar.cc/256?img=15',
+    badges: [],
+    messageType: 'channel_points_highlighted',
+  },
   {
     name: 'Charlie',
     login: 'charlie',
@@ -135,6 +159,14 @@ const fakeUsers: {
     color: '#9aa0bd',
     avatarUrl: 'https://i.pravatar.cc/256?img=33',
     badges: [{ set_id: 'moderator', id: '1', info: '' }],
+  },
+  {
+    name: 'Frank',
+    login: 'frank',
+    color: '#ffb833',
+    avatarUrl: 'https://i.pravatar.cc/256?img=52',
+    badges: [],
+    messageType: 'user_intro',
   },
 ];
 
@@ -170,6 +202,11 @@ export const ChatPreview = ({
     showNameAlias: overlayParameters.showNameAlias,
     showGifs: overlayParameters.showGifs,
     usernameColor: overlayParameters.usernameColor,
+    highlightPoints: overlayParameters.highlightPoints,
+    highlightMentions: overlayParameters.highlightMentions,
+    highlightFirstMessages: overlayParameters.highlightFirstMessages,
+    highlightColor: overlayParameters.highlightColor,
+    highlightRules: compileHighlightRules(decodeFiltersFromUrl<HighlightRule>(overlayParameters.highlightRules)),
     dropShadowEnabled: overlayParameters.dropShadowEnabled,
     dropShadowSettings: overlayParameters.dropShadowSettings,
     textStrokeEnabled: overlayParameters.textStrokeEnabled,
@@ -188,7 +225,7 @@ export const ChatPreview = ({
       chatter_user_name: user.name,
       message_id: String(idx),
       message: fakeTwitchMessages[idx],
-      message_type: 'text',
+      message_type: user.messageType ?? 'text',
       badges: user.badges,
       color: user.color,
       eventType: 'channel.chat.message',

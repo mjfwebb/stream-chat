@@ -1,11 +1,13 @@
 import classNames from 'classnames';
 import type { UsernameColorMode } from '../../constants';
 import { ChannelChatMessageEvent } from '../../types/twitchEvents';
+import { getHighlight, type HighlightSettings } from '../../utils/highlights';
 import { ChatImageRenderer } from './ChatImageRenderer';
 import { contrastCorrected } from './contrastCorrected';
+import { withOpacity } from './overlayStyle';
 import { UserBadges } from './UserBadges';
 
-interface ChatEntryProps {
+interface ChatEntryProps extends HighlightSettings {
   chatMessage: ChannelChatMessageEvent;
   backgroundColor: string;
   showAvatars: boolean;
@@ -62,8 +64,14 @@ export const ChatEntry = ({
   usernameColor,
   chatMessagePadding,
   userInformationStore,
+  highlightPoints,
+  highlightMentions,
+  highlightFirstMessages,
+  highlightColor,
+  highlightRules,
 }: ChatEntryProps) => {
   const gigantified = chatMessage.message_type === 'power_ups_gigantified_emote';
+  const highlight = getHighlight(chatMessage, { highlightPoints, highlightMentions, highlightFirstMessages, highlightColor, highlightRules });
   const actionMessage = chatMessage.message.text.startsWith('\u0001ACTION');
 
   // Gifs currently can't be combined with other fragments, so a disabled gif means an empty message
@@ -85,8 +93,16 @@ export const ChatEntry = ({
           'chat-message-body',
           showBorders && chatMessage.badges.find((badge) => badge.set_id === 'subscriber') && 'chat-message-body-subscriber',
           gigantified && 'chat-message-body-gigantified',
+          highlight?.type === 'spotlight' && 'chat-message-body-spotlighted',
         )}
         style={{
+          ...(highlight?.type === 'color'
+            ? {
+                borderLeftColor: highlight.color,
+                borderRightColor: highlight.color,
+                backgroundColor: withOpacity(highlight.color, 25),
+              }
+            : {}),
           ...(dropShadowEnabled
             ? {
                 textShadow: dropShadowSettings,

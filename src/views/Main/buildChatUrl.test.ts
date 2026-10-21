@@ -145,3 +145,27 @@ describe('buildUpdatedChatUrl - appearance', () => {
     expect(result.searchParams.get('chat-anchor')).toBe('top');
   });
 });
+
+describe('buildUpdatedChatUrl - highlights', () => {
+  it('omits every highlight setting at its default', () => {
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, { ...DEFAULT_CHAT_SETTINGS_VALUES }));
+    for (const param of ['highlight-points', 'highlight-mentions', 'highlight-first-messages', 'highlight-color', 'highlight-rules']) {
+      expect(result.searchParams.get(param)).toBeNull();
+    }
+  });
+
+  it('writes changed highlight settings', () => {
+    const params = {
+      ...DEFAULT_CHAT_SETTINGS_VALUES,
+      highlightPoints: false,
+      highlightMentions: true,
+      highlightColor: '#ff8800',
+      highlightRules: 'abc',
+    };
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
+    expect(result.searchParams.get('highlight-points')).toBe('false');
+    expect(result.searchParams.get('highlight-mentions')).toBe('true');
+    expect(result.searchParams.get('highlight-color')).toBe('#ff8800');
+    expect(result.searchParams.get('highlight-rules')).toBe('abc');
+  });
+});

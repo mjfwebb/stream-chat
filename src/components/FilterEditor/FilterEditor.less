@@ -17,14 +17,32 @@
     border-radius: var(--radius-sm);
     background: var(--surface-2);
 
+    // A rule with an extra control, such as a color, has one more column.
+    &-extra {
+      grid-template-columns: 104px minmax(0, 1fr) auto auto auto;
+    }
+
     @media (max-width: 520px) {
-      grid-template-columns: 1fr 1fr;
+      &,
+      &-extra {
+        grid-template-columns: 1fr 1fr;
+      }
 
       input[type='text'] {
         grid-column: 1 / -1;
         order: 3;
       }
     }
+  }
+
+  &-color {
+    width: 34px;
+    height: 30px;
+    padding: 2px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
   }
 
   &-case {
