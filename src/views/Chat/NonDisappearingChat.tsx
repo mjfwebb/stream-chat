@@ -5,6 +5,7 @@ import type { VirtuosoHandle } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 
 import { store } from '../../store/store';
+import { isMessageVisible } from '../../utils/messageVisibility';
 import { ChatEntry } from './ChatEntry';
 import { chatEntryStyleProps, useChatSearchParams } from './useChatSearchParams';
 
@@ -14,16 +15,7 @@ export const NonDisappearingChat = () => {
   const chatMessages = store((s) => s.chatMessageEvents);
   const virtuoso = useRef<VirtuosoHandle>(null);
 
-  const filteredMessages = chatMessages.filter((m) => {
-    if (!chatSearchParams.usernameFilterRegex && !chatSearchParams.messageFilterRegex) {
-      return true;
-    }
-
-    const userOk = chatSearchParams.usernameFilterRegex ? chatSearchParams.usernameFilterRegex.test(m.chatter_user_name) : true;
-    const msgOk = chatSearchParams.messageFilterRegex ? chatSearchParams.messageFilterRegex.test(m.message.text) : true;
-
-    return userOk && msgOk;
-  });
+  const filteredMessages = chatMessages.filter((m) => isMessageVisible(m, chatSearchParams));
 
   const InnerItem = memo(({ index }: { index: number }) => {
     return (

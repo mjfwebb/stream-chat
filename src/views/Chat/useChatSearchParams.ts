@@ -1,6 +1,7 @@
 import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, SETTING_OPTIONS } from '../../constants';
 import { buildFilterRegex, decodeFiltersFromUrl } from '../../utils/filters';
 import { compileHighlightRules, type HighlightRule } from '../../utils/highlights';
+import { parseRoles } from '../../utils/messageVisibility';
 
 // A number from the URL, or the default when it is missing or not a number.
 const numberParam = (searchParams: URLSearchParams, name: string, defaultValue: number): number => {
@@ -42,6 +43,12 @@ export const useChatSearchParams = () => {
   const highlightMentions = searchParams.get(params.highlightMentions) === 'true' ? true : defaults.highlightMentions;
   const highlightFirstMessages = searchParams.get(params.highlightFirstMessages) === 'true' ? true : defaults.highlightFirstMessages;
   const highlightColor = searchParams.get(params.highlightColor) || defaults.highlightColor;
+
+  // Controls whether a reply shows a line about the message it answers. Defaults to true.
+  const showReplies = searchParams.get(params.showReplies) === 'false' ? false : defaults.showReplies;
+
+  // Only messages from these roles show (comma separated: subscriber, vip, moderator, broadcaster). Empty shows everyone.
+  const onlyRoles = parseRoles(searchParams.get(params.onlyRoles));
 
   // Highlight rules (base64url encoded JSON). Each rule has its own color.
   const highlightRules = compileHighlightRules(decodeFiltersFromUrl<HighlightRule>(searchParams.get(params.highlightRules)));
@@ -138,6 +145,8 @@ export const useChatSearchParams = () => {
     highlightFirstMessages,
     highlightColor,
     highlightRules,
+    showReplies,
+    onlyRoles,
     animatedEntry,
     animatedExit,
     backgroundColor,
@@ -181,4 +190,5 @@ export const chatEntryStyleProps = (settings: ReturnType<typeof useChatSearchPar
   highlightFirstMessages: settings.highlightFirstMessages,
   highlightColor: settings.highlightColor,
   highlightRules: settings.highlightRules,
+  showReplies: settings.showReplies,
 });

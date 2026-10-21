@@ -169,3 +169,18 @@ describe('buildUpdatedChatUrl - highlights', () => {
     expect(result.searchParams.get('highlight-rules')).toBe('abc');
   });
 });
+
+describe('buildUpdatedChatUrl - replies and roles', () => {
+  it('omits both at their defaults', () => {
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, { ...DEFAULT_CHAT_SETTINGS_VALUES }));
+    expect(result.searchParams.get('show-replies')).toBeNull();
+    expect(result.searchParams.get('only-roles')).toBeNull();
+  });
+
+  it('writes a switched-off reply line and a chosen role list', () => {
+    const params = { ...DEFAULT_CHAT_SETTINGS_VALUES, showReplies: false, onlyRoles: 'vip,moderator' };
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
+    expect(result.searchParams.get('show-replies')).toBe('false');
+    expect(result.searchParams.get('only-roles')).toBe('vip,moderator');
+  });
+});

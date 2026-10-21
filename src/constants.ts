@@ -68,6 +68,8 @@ export const DEFAULT_CHAT_SETTINGS_VALUES = {
   highlightFirstMessages: false,
   highlightColor: '#a970ff',
   highlightRules: '',
+  showReplies: true,
+  onlyRoles: '',
   usernameFilters: '',
   messageFilters: '',
 };
@@ -110,6 +112,8 @@ export const chatSearchParamsMap = {
   highlightFirstMessages: 'highlight-first-messages',
   highlightColor: 'highlight-color',
   highlightRules: 'highlight-rules',
+  showReplies: 'show-replies',
+  onlyRoles: 'only-roles',
   usernameFilters: 'username-filters',
   messageFilters: 'message-filters',
 };

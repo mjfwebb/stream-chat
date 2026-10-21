@@ -20,6 +20,7 @@ interface ChatEntryProps extends HighlightSettings {
   showNameAlias: boolean;
   showGifs: boolean;
   usernameColor: UsernameColorMode;
+  showReplies: boolean;
   chatMessagePadding: string;
   userInformationStore: {
     [userId: string]: {
@@ -62,6 +63,7 @@ export const ChatEntry = ({
   showNameAlias,
   showGifs,
   usernameColor,
+  showReplies,
   chatMessagePadding,
   userInformationStore,
   highlightPoints,
@@ -117,6 +119,11 @@ export const ChatEntry = ({
         }}
       >
         <span>
+          {showReplies && chatMessage.reply && (
+            <span className="chat-message-reply" title={chatMessage.reply.parent_message_body}>
+              Replying to @{chatMessage.reply.parent_user_name}: {chatMessage.reply.parent_message_body}
+            </span>
+          )}
           {showAvatars && user.avatarUrl && <img className="chat-message-avatar-image" src={user.avatarUrl} alt="avatar" height={34} />}
           <UserBadges badges={chatMessage.badges} />
           <span
