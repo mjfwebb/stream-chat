@@ -9,7 +9,7 @@
     "test": "vitest",
     "lint": "oxlint --type-aware",
     "preview": "vite preview",
-    "typecheck": "tsgo --noEmit",
+    "typecheck": "tsgo -b",
     "format:check": "oxfmt --check .",
     "format:fix": "oxfmt ."
   },
