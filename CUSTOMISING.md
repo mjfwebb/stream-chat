@@ -1,6 +1,6 @@
-# Customizing the overlay with CSS
+# Customising the overlay with CSS
 
-The editor on the home page covers most changes: colors, fonts, sizes, highlights and more. For anything else, you can add your own CSS. This guide shows how.
+The editor on the home page covers most changes: colours, fonts, sizes, highlights and more. For anything else, you can add your own CSS. This guide shows how.
 
 CSS (Cascading Style Sheets) is the language that styles web pages. You add it in OBS, in the browser source that shows the overlay.
 
@@ -16,7 +16,7 @@ Your CSS runs only in OBS. The live preview in the editor does not use it. To te
 
 ## How the overlay is built
 
-The overlay is a list of messages. Each message is one `chat-message` element. Inside it, `chat-message-body` is the colored box. Inside the box, you find the avatar, the badges, the name, and the text.
+The overlay is a list of messages. Each message is one `chat-message` element. Inside it, `chat-message-body` is the coloured box. Inside the box, you find the avatar, the badges, the name, and the text.
 
 ```
 .chat
@@ -43,7 +43,7 @@ The names in this section are stable. Other class names in the overlay can chang
 | `.chat-message-avatar-image` | The avatar of the chatter                                          |
 | `.chat-message-badge`        | One badge                                                          |
 | `.chat-message-nick`         | The display name                                                   |
-| `.chat-message-nick-alias`   | The login that follows a localized name                            |
+| `.chat-message-nick-alias`   | The login that follows a localised name                            |
 | `.chat-message-text`         | The text of the message                                            |
 | `.chat-message-reply`        | The line above a reply                                             |
 | `.chat-message-notice-label` | The word at the start of a banner, such as SUB                     |
@@ -87,15 +87,15 @@ Every message that has a chatter carries two data attributes. The login is in lo
 
 The editor sets these variables. You can read them, or set them again in your CSS.
 
-| Variable                 | What it holds                                  |
-| ------------------------ | ---------------------------------------------- |
-| `--avatar-size`          | The size of the avatar                         |
-| `--badge-size`           | The height of a badge                          |
-| `--emote-size`           | The largest height of an emote                 |
-| `--line-height`          | The height of one line of text                 |
-| `--message-background`   | The background of each message                 |
-| `--message-radius`       | The corner radius of each message              |
-| `--highlight-background` | The color layer behind a highlight or a banner |
+| Variable                 | What it holds                                   |
+| ------------------------ | ----------------------------------------------- |
+| `--avatar-size`          | The size of the avatar                          |
+| `--badge-size`           | The height of a badge                           |
+| `--emote-size`           | The largest height of an emote                  |
+| `--line-height`          | The height of one line of text                  |
+| `--message-background`   | The background of each message                  |
+| `--message-radius`       | The corner radius of each message               |
+| `--highlight-background` | The colour layer behind a highlight or a banner |
 
 ## Recipes
 
@@ -125,7 +125,7 @@ Hide the messages of one chatter, such as a bot. Use the lowercase login:
 }
 ```
 
-Color the names of moderators green. The overlay sets the name color on each name, so you must add `!important`:
+Colour the names of moderators green. The overlay sets the name colour on each name, so you must add `!important`:
 
 ```css
 .chat-message--moderator .chat-message-nick {
@@ -171,8 +171,8 @@ Use a font from Google Fonts. Load the font in the Custom CSS box, then type its
 
 ## Good to know
 
-The editor writes some styles directly on the elements, such as the name color and the border colors of a highlight. Your CSS loses against these styles unless you add `!important`.
+The editor writes some styles directly on the elements, such as the name colour and the border colours of a highlight. Your CSS loses against these styles unless you add `!important`.
 
-The color of a highlight or a banner sits on a layer behind the text. To change it, style `.chat-message-body-highlighted::before` and its `background`.
+The colour of a highlight or a banner sits on a layer behind the text. To change it, style `.chat-message-body-highlighted::before` and its `background`.
 
 When a setting exists in the editor, use the setting. It also shows in the live preview, and it works without CSS.

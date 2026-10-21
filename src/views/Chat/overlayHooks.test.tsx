@@ -6,7 +6,7 @@ import type { ChannelChatMessageEvent } from '../../types/twitchEvents';
 import { compileHighlightRules } from '../../utils/highlights';
 import { ChatEntry } from './ChatEntry';
 
-// The class names and data attributes in CUSTOMIZING.md are a promise to streamers who write their own CSS.
+// The class names and data attributes in CUSTOMISING.md are a promise to streamers who write their own CSS.
 // These tests render real messages and check that the promise holds.
 
 const defaults = DEFAULT_CHAT_SETTINGS_VALUES;
@@ -106,7 +106,7 @@ describe('classes for highlights', () => {
     expect(classes).toEqual(expect.arrayContaining(['chat-message--highlight', 'chat-message--highlight-points']));
   });
 
-  it('names a channel point highlight that has its own color too', () => {
+  it('names a channel point highlight that has its own colour too', () => {
     const classes = messageClasses(render(makeMessage({ message_type: 'channel_points_highlighted' }), { highlightPointsColor: '#ff0066' }));
     expect(classes).toContain('chat-message--highlight-points');
   });
@@ -179,10 +179,10 @@ describe('the parts of a message', () => {
   });
 });
 
-describe('CUSTOMIZING.md', () => {
+describe('CUSTOMISING.md', () => {
   // Every `.chat...` selector in the guide must exist: in the markup above, or as a name in the overlay source.
   it('names only classes that the overlay has', () => {
-    const guide = readFileSync(new URL('../../../CUSTOMIZING.md', import.meta.url), 'utf8');
+    const guide = readFileSync(new URL('../../../CUSTOMISING.md', import.meta.url), 'utf8');
     const documented = [...new Set([...guide.matchAll(/\.(chat(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?)/g)].map((match) => match[1]))];
     expect(documented.length).toBeGreaterThan(20);
 

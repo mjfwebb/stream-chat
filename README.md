@@ -15,7 +15,7 @@ Use it right now at [chat.nice.gg](https://chat.nice.gg/).
 
 For a full list of URL parameters and customization options, see [URL_PARAMETERS.md](./URL_PARAMETERS.md).
 
-To restyle the overlay with your own CSS in OBS, see [CUSTOMIZING.md](./CUSTOMIZING.md). It lists the class names, the data attributes and the CSS variables that stay stable, and it has recipes.
+To restyle the overlay with your own CSS in OBS, see [CUSTOMISING.md](./CUSTOMISING.md). It lists the class names, the data attributes and the CSS variables that stay stable, and it has recipes.
 
 ## Getting Started
 

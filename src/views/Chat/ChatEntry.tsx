@@ -113,7 +113,7 @@ export const ChatEntry = ({
     avatarUrl: userInformationStore[chatMessage.chatter_user_id]?.profile_image_url ?? '',
   };
 
-  // Classes and data attributes that custom CSS can use, such as `.chat-message--moderator`. CUSTOMIZING.md lists them.
+  // Classes and data attributes that custom CSS can use, such as `.chat-message--moderator`. CUSTOMISING.md lists them.
   const source = highlight ? highlightSource(highlight) : null;
   const messageClassName = classNames(
     'chat-message',

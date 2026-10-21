@@ -6,7 +6,7 @@ export const TWITCH_INSIGHTS_URL = 'https://api.twitchinsights.net/v1/';
 export const SEVEN_TV_WEBSOCKET_URL = 'wss://events.7tv.io/v3';
 export const BETTER_TTV_WEBSOCKET_URL = 'wss://sockets.betterttv.net/ws';
 
-export const CUSTOMIZING_GUIDE_URL = 'https://github.com/mjfwebb/stream-chat/blob/main/CUSTOMIZING.md';
+export const CUSTOMISING_GUIDE_URL = 'https://github.com/mjfwebb/stream-chat/blob/main/CUSTOMISING.md';
 
 export const SECOND_MS = 1000;
 export const MINUTE_MS = 60000;
