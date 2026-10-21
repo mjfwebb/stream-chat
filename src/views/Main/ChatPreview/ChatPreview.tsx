@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DEFAULT_CHAT_SETTINGS_VALUES } from '../../../constants';
 import { ChannelChatMessageEvent } from '../../../types/twitchEvents';
 import { buildFilterRegex, decodeFiltersFromUrl, type UserFilterConfig } from '../../../utils/filters';
+import { Button } from '../../../components/Button/Button';
 import { ChatEntry } from '../../Chat/ChatEntry';
 
 import './ChatPreview.less';
@@ -80,6 +81,15 @@ const fakeTwitchMessages: ChannelChatMessageEvent['message'][] = [
       },
     ],
   },
+  {
+    text: 'Remember to follow! Use !socials for every link.',
+    fragments: [
+      {
+        type: 'text',
+        text: 'Remember to follow! Use !socials for every link.',
+      },
+    ],
+  },
 ];
 
 const fakeUsers: {
@@ -118,9 +128,31 @@ const fakeUsers: {
     ],
   },
   { name: '안녕하세요', login: 'Eve', color: '#33fff5', avatarUrl: 'https://i.pravatar.cc/256?img=21', badges: [] },
+  {
+    name: 'Nightbot',
+    login: 'nightbot',
+    color: '#9aa0bd',
+    avatarUrl: 'https://i.pravatar.cc/256?img=33',
+    badges: [{ set_id: 'moderator', id: '1', info: '' }],
+  },
 ];
 
-export const ChatPreview = ({ overlayParameters }: { overlayParameters: typeof DEFAULT_CHAT_SETTINGS_VALUES }) => {
+const BACKDROPS: [string, string][] = [
+  ['#1c2447', '#3a2a6b'],
+  ['#10261f', '#2b5a3f'],
+  ['#3a1f1f', '#8a4a2a'],
+  ['#e9ecf5', '#c8cde0'],
+];
+
+export const ChatPreview = ({
+  overlayParameters,
+  replayKey = 0,
+  onReplay,
+}: {
+  overlayParameters: typeof DEFAULT_CHAT_SETTINGS_VALUES;
+  replayKey?: number;
+  onReplay?: () => void;
+}) => {
   const overlayParametersToChatEntryProps = {
     foregroundColor: overlayParameters.foregroundColor,
     backgroundColor: overlayParameters.backgroundColor,
@@ -142,34 +174,23 @@ export const ChatPreview = ({ overlayParameters }: { overlayParameters: typeof D
     textStrokeSettings: overlayParameters.textStrokeSettings,
     chatMessagePadding: `${overlayParameters.chatMessagePaddingValue}${overlayParameters.chatMessagePaddingUnit}`,
   };
-  const [backgroundColor, setBackgroundColor] = useState('#202c51');
+  const [backdrop, setBackdrop] = useState(0);
 
-  const generateNewBackgroundColor = () => {
-    const randomColor = Math.floor(Math.random() * 16777215)
-      .toString(16)
-      .padStart(6, '0');
-    setBackgroundColor(`#${randomColor}`);
-  };
-
-  const fakeChatMessageEvents = Array.from({ length: 5 }, (_, idx: number) => {
-    {
-      const user = fakeUsers[idx];
-
-      return {
-        broadcaster_user_id: '0',
-        broadcaster_user_login: 'athano',
-        broadcaster_user_name: 'Athano',
-        chatter_user_id: '0',
-        chatter_user_login: user.login,
-        chatter_user_name: user.name,
-        message_id: String(idx),
-        message: fakeTwitchMessages[idx],
-        message_type: 'text',
-        badges: fakeUsers[idx].badges,
-        color: user.color,
-        eventType: 'channel.chat.message',
-      } satisfies ChannelChatMessageEvent;
-    }
+  const fakeChatMessageEvents = fakeUsers.map((user, idx: number) => {
+    return {
+      broadcaster_user_id: '0',
+      broadcaster_user_login: 'athano',
+      broadcaster_user_name: 'Athano',
+      chatter_user_id: '0',
+      chatter_user_login: user.login,
+      chatter_user_name: user.name,
+      message_id: String(idx),
+      message: fakeTwitchMessages[idx],
+      message_type: 'text',
+      badges: user.badges,
+      color: user.color,
+      eventType: 'channel.chat.message',
+    } satisfies ChannelChatMessageEvent;
   });
 
   // Apply username filter if provided in overlayParameters.usernameFilters
@@ -194,15 +215,38 @@ export const ChatPreview = ({ overlayParameters }: { overlayParameters: typeof D
 
     return userOk && msgOk;
   });
+  const hiddenCount = fakeChatMessageEvents.length - filteredMessages.length;
 
   return (
     <div className="chat-preview-container">
-      <h2>Overlay preview</h2>
-      <div className="chat-preview" style={{ backgroundColor }}>
-        <button className="chat-preview-change-bg-button" onClick={generateNewBackgroundColor}>
-          Change background color
-        </button>
+      <div className="chat-preview-head">
+        <h2>Live preview</h2>
+        <div className="chat-preview-swatches" role="group" aria-label="Preview backdrop">
+          {BACKDROPS.map(([from, to], idx) => (
+            <button
+              key={from}
+              type="button"
+              className="chat-preview-swatch"
+              style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+              aria-label={`Backdrop ${idx + 1}`}
+              aria-pressed={backdrop === idx}
+              onClick={() => setBackdrop(idx)}
+            />
+          ))}
+        </div>
+        {onReplay && (
+          <Button type="secondary" onClick={onReplay}>
+            Replay
+          </Button>
+        )}
+      </div>
+      <div className="chat-preview" style={{ ['--stage-a' as string]: BACKDROPS[backdrop][0], ['--stage-b' as string]: BACKDROPS[backdrop][1] }}>
+        <span className="chat-preview-size">
+          {overlayParametersToChatEntryProps.width} × {overlayParametersToChatEntryProps.height}
+        </span>
         <div
+          className="chat-preview-overlay"
+          key={replayKey}
           style={{
             background: overlayParametersToChatEntryProps.backgroundColor,
             width: overlayParametersToChatEntryProps.width,
@@ -224,6 +268,12 @@ export const ChatPreview = ({ overlayParameters }: { overlayParameters: typeof D
             />
           ))}
         </div>
+      </div>
+      <div className="chat-preview-foot">
+        <span className={`pill ${hiddenCount ? 'pill-warn' : ''}`}>
+          {hiddenCount} of {fakeChatMessageEvents.length} sample messages hidden by filters
+        </span>
+        <span>Sample chat. Real messages arrive from your channel.</span>
       </div>
     </div>
   );

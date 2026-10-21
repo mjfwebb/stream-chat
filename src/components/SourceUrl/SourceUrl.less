@@ -1,0 +1,33 @@
+.source-url {
+  flex: 1 1 200px;
+  min-width: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--fg);
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--muted);
+  }
+
+  &-open {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  &-key {
+    color: var(--accent);
+  }
+
+  &-muted {
+    color: var(--muted);
+  }
+}

@@ -12,12 +12,13 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 8px;
   padding: 8px;
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
   border-radius: 6px;
-  color: #bec6cf;
+  color: var(--muted);
   font-size: 14px;
-  width: 340px;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const Row = styled.div`
@@ -28,31 +29,31 @@ const Row = styled.div`
 
 const Segmented = styled.div`
   display: inline-flex;
-  background: #1f1f1f;
-  border: 1px solid #3a3a3a;
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 6px;
 
   button {
     background: transparent;
-    color: #c7cbd1;
+    color: var(--muted);
     padding: 6px 10px;
     border: none;
     cursor: pointer;
   }
 
   button[aria-pressed='true'] {
-    background: #3a3a3a;
+    background: var(--line);
   }
 `;
 
 const Label = styled.label`
   width: 110px;
-  color: #c7cbd1;
+  color: var(--muted);
 `;
 
 const Preview = styled.div`
-  background: #1f1f1f;
-  border: 1px solid #3a3a3a;
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 6px;
   padding: 8px 10px;
   font-size: 22px;

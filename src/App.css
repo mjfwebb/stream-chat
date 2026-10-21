@@ -1,3 +1,29 @@
+/* Design tokens for the settings studio. Dark only for now. */
+:root {
+  --bg: #0e0f18;
+  --surface: #171826;
+  --surface-2: #1e2030;
+  --line: #2c2f45;
+  --fg: #eceef9;
+  --muted: #9ba1c0;
+  --accent: #a58bff;
+  --accent-fg: #14092f;
+  --accent-soft: #2b2352;
+  --good: #5fd391;
+  --good-soft: #173a29;
+  --warn: #f0b35c;
+  --warn-soft: #3b2c12;
+  --bad: #ff7a8e;
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', Consolas, monospace;
+  --radius: 10px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 28px rgba(0, 0, 0, 0.35);
+  --twitch: #9146ff;
+}
+
 body {
   background: #18181b;
   color: #f4f4f5;
@@ -5,23 +31,6 @@ body {
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
   padding: 0;
-}
-
-main {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 24px;
-  background: #232326;
-  border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
-}
-
-h1,
-h2,
-h3 {
-  color: #a78bfa;
-  margin-top: 0;
-  margin-bottom: 1rem;
 }
 
 ol {
@@ -72,45 +81,6 @@ code {
   padding: 0.5rem;
   border: 1px solid #004080;
   border-radius: 3px;
-}
-
-details[open] summary ~ section {
-  animation: sweep 0.3s ease-in-out;
-  padding: 1rem;
-  margin: 1rem;
-  border: 1px solid #323133;
-  border-radius: 5px;
-  margin-top: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  color: #e0e0e0;
-  background-color: #1e1e1e;
-}
-
-@keyframes sweep {
-  0% {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-footer {
-  text-align: center;
-  padding: 1rem;
-  font-size: 0.875rem;
-  color: #888;
-}
-
-.button-update-chat {
-  margin-top: 1rem;
-  width: 100%;
-}
-
-.add-to-obs {
-  margin-bottom: 2rem;
 }
 
 .divider {

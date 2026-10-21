@@ -2,16 +2,16 @@
 .toast-wrapper {
   position: fixed;
   right: 1rem;
-  top: 1rem;
+  bottom: 1rem;
   z-index: 1000;
   pointer-events: none; // allow clicks to pass through when hidden
 }
 
 .toast {
   pointer-events: auto;
-  background: #1f1b2e;
+  background: var(--surface-2);
   color: #f4f4f5;
-  border: 1px solid #433b5d;
+  border: 1px solid var(--line);
   border-radius: 10px;
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.35),
@@ -31,7 +31,7 @@
 .toast-title {
   font-weight: 700;
   font-size: 0.9rem;
-  color: #e879f9;
+  color: var(--accent);
 }
 
 .toast-message {

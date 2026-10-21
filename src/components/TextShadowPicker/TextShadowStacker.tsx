@@ -18,35 +18,35 @@ const Row = styled.div`
 `;
 
 const ShadowCard = styled.div`
-  border: 1px solid #3a3a3a;
+  border: 1px solid var(--line);
   border-radius: 6px;
   overflow: hidden;
-  background: #1f1f1f;
+  background: var(--surface);
 `;
 
 const CardHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #262626;
+  background: var(--surface-2);
   padding: 6px 8px;
   font-size: 12px;
-  color: #c7cbd1;
+  color: var(--muted);
 `;
 
 const CardActions = styled.div`
   display: flex;
   gap: 6px;
   & > button {
-    background: #333;
-    color: #ddd;
-    border: 1px solid #444;
+    background: var(--surface-2);
+    color: var(--fg);
+    border: 1px solid var(--line);
     border-radius: 4px;
     padding: 2px 8px;
     cursor: pointer;
   }
   & > button:hover {
-    background: #3a3a3a;
+    background: var(--line);
   }
 `;
 

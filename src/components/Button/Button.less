@@ -1,49 +1,90 @@
-.button {
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: all 150ms;
-}
+@import (reference) '../../styles/mixins.less';
 
-.button-primary {
-  padding: 10px 20px;
-  background: linear-gradient(90deg, #0000 0%, #38bdf8 100%);
-  background-color: #a78bfa;
-  color: #18181b;
-  box-shadow: 0px 0px 3px rgba(224, 197, 197, 0.3);
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  padding: 8px 14px;
+  white-space: nowrap;
+  background: var(--surface);
+  color: var(--fg);
+  transition:
+    border-color 150ms,
+    background 150ms,
+    filter 150ms;
 
   &:hover {
-    background-color: #ffdcee;
-    color: #000;
+    border-color: var(--muted);
+  }
+
+  &:focus-visible {
+    .focus-ring();
+  }
+
+  &:disabled {
+    cursor: default;
+    background: var(--surface-2);
+    border-color: var(--line);
+    color: var(--muted);
+    filter: none;
   }
 }
 
-.button-ghost {
-  padding: 8px;
-  background: transparent;
-  color: #38bdf8;
-  border: 1px solid #38bdf8;
+.button-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
 
   &:hover {
-    background: #38bdf8;
-    color: #fff;
+    border-color: var(--accent);
+    filter: brightness(1.08);
   }
 }
 
 .button-secondary {
-  font-size: 0.875rem;
-  font-weight: 500;
-  background: #333;
-  color: #ddd;
-  border: 1px solid #444;
-  border-radius: 4px;
-  padding: 6px 10px;
-  cursor: pointer;
+  background: var(--surface-2);
+}
+
+.button-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
 
   &:hover {
-    background: #8267dc;
-    color: #fff;
+    border-color: transparent;
+    background: var(--surface-2);
+    color: var(--fg);
+  }
+}
+
+.button-danger {
+  background: transparent;
+  border-color: transparent;
+  color: var(--bad);
+
+  &:hover {
+    border-color: var(--bad);
+  }
+}
+
+.button-twitch {
+  padding: 11px 20px;
+  border-color: var(--twitch);
+  border-radius: 10px;
+  background: var(--twitch);
+  color: #fff;
+  font-size: 15px;
+
+  &:hover {
+    border-color: var(--twitch);
+    filter: brightness(1.1);
   }
 }

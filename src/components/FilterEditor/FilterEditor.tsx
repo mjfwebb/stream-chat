@@ -1,20 +1,21 @@
-import {} from 'react';
 import type { UserFilterConfig, UserFilterRule } from '../../utils/filters';
 import { Button } from '../Button/Button';
-import { Space } from '../Space/Space';
 
 import './FilterEditor.less';
 
 type FilterEditorProps = {
   value: UserFilterConfig;
   onChange: (cfg: UserFilterConfig) => void;
+  addLabel?: string;
+  placeholder?: string;
+  emptyText?: string;
 };
 
 const matchTypes: UserFilterRule['matchType'][] = ['exact', 'contains', 'wildcard'];
 
-export function FilterEditor({ value, onChange }: FilterEditorProps) {
+export function FilterEditor({ value, onChange, addLabel = 'Add rule', placeholder = 'pattern', emptyText = 'No rules yet.' }: FilterEditorProps) {
   const rules = value.rules ?? [];
-  const hasRules = (rules?.length ?? 0) > 0;
+  const hasRules = rules.length > 0;
 
   const addRule = () => {
     const next: UserFilterRule = { matchType: 'exact', pattern: '', caseSensitive: false };
@@ -28,23 +29,20 @@ export function FilterEditor({ value, onChange }: FilterEditorProps) {
   };
 
   const removeRule = (idx: number) => {
-    const next = rules.filter((_, i) => i !== idx);
-    onChange({ rules: next });
+    onChange({ rules: rules.filter((_, i) => i !== idx) });
   };
-
-  const clearAll = () => onChange({ rules: [] });
 
   return (
     <div className="filter-editor">
       {hasRules ? (
         <div className="filter-editor-rules">
           {rules.map((r, idx) => (
-            <div
-              className="filter-editor-rule"
-              key={idx}
-              style={{ display: 'grid', gridTemplateColumns: 'repeat(4, auto)', gap: 8, alignItems: 'center' }}
-            >
-              <select value={r.matchType} onChange={(e) => updateRule(idx, { matchType: e.target.value as UserFilterRule['matchType'] })}>
+            <div className="filter-editor-rule" key={idx}>
+              <select
+                value={r.matchType}
+                onChange={(e) => updateRule(idx, { matchType: e.target.value as UserFilterRule['matchType'] })}
+                aria-label="Match type"
+              >
                 {matchTypes.map((mt) => (
                   <option key={mt} value={mt}>
                     {mt}
@@ -53,34 +51,32 @@ export function FilterEditor({ value, onChange }: FilterEditorProps) {
               </select>
               <input
                 type="text"
-                placeholder="pattern"
+                placeholder={placeholder}
                 value={r.pattern}
                 onChange={(e) => updateRule(idx, { pattern: e.target.value })}
                 autoComplete="off"
+                aria-label="Pattern"
               />
-              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <label className="filter-editor-case">
                 <input type="checkbox" checked={!!r.caseSensitive} onChange={(e) => updateRule(idx, { caseSensitive: e.target.checked })} />
-                Case sensitive
+                Case
               </label>
-              <Button type="secondary" onClick={() => removeRule(idx)}>
-                Remove
-              </Button>
+              <button type="button" className="filter-editor-remove" onClick={() => removeRule(idx)} aria-label="Remove rule">
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                  <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </button>
             </div>
           ))}
         </div>
       ) : (
-        <p>No filters defined.</p>
+        <div className="filter-editor-empty">{emptyText}</div>
       )}
-      <Space>
+      <div>
         <Button type="secondary" onClick={addRule}>
-          Add rule
+          {addLabel}
         </Button>
-        {hasRules && (
-          <Button type="secondary" onClick={clearAll}>
-            Clear all
-          </Button>
-        )}
-      </Space>
+      </div>
     </div>
   );
 }
