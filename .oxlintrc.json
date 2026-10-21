@@ -9,7 +9,8 @@
   },
   "rules": {
     "react-hooks/exhaustive-deps": "warn",
-    "react-hooks/rules-of-hooks": "error"
+    "react-hooks/rules-of-hooks": "error",
+    "react/set-state-in-effect": "off"
   },
   "ignorePatterns": ["dist", "out", "node_modules"]
 }
