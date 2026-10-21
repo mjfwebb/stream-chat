@@ -55,9 +55,9 @@ export const ColorValuePicker = ({ id, value, onChange, placeholder, setToDefaul
     return (
       <div className="color-picker">
         <span className="color-picker-twitch" aria-hidden="true" />
-        <input id={id} type="text" className="color-picker-text" value={emptyLabel} readOnly aria-label="Color value" />
+        <input id={id} type="text" className="color-picker-text" value={emptyLabel} readOnly aria-label="Colour value" />
         <Button type="secondary" onClick={() => onChange(placeholder)}>
-          Pick a color
+          Pick a colour
         </Button>
       </div>
     );
@@ -70,23 +70,23 @@ export const ColorValuePicker = ({ id, value, onChange, placeholder, setToDefaul
   return (
     <div className="color-value">
       <div className="color-picker">
-        <HexField id={id} value={from} label={to ? 'First color' : 'Color'} onChange={(color) => onChange(formatColorValue({ from: color, to }))} />
+        <HexField id={id} value={from} label={to ? 'First colour' : 'Colour'} onChange={(color) => onChange(formatColorValue({ from: color, to }))} />
         {to ? (
           <Button type="secondary" onClick={() => onChange(from)}>
-            One color
+            One colour
           </Button>
         ) : (
           <Button type="secondary" onClick={() => onChange(formatColorValue({ from, to: suggestSecondColor(from) }))}>
             Add gradient
           </Button>
         )}
-        <Button type="ghost" onClick={setToDefault} aria-label="Reset color to default">
+        <Button type="ghost" onClick={setToDefault} aria-label="Reset colour to default">
           {emptyLabel ?? 'Default'}
         </Button>
       </div>
       {to && (
         <div className="color-picker color-value-second">
-          <HexField value={to} label="Second color" onChange={(color) => onChange(formatColorValue({ from, to: color }))} />
+          <HexField value={to} label="Second colour" onChange={(color) => onChange(formatColorValue({ from, to: color }))} />
           <span className="color-value-preview" style={{ background: `linear-gradient(90deg, ${from}, ${to})` }} aria-hidden="true" />
         </div>
       )}
@@ -109,14 +109,14 @@ export const ColorValueCompact = ({ value, onChange, label }: { value: string; o
             type="color"
             value={to}
             onChange={(e) => onChange(formatColorValue({ from, to: e.target.value }))}
-            aria-label={`${label}, second color`}
+            aria-label={`${label}, second colour`}
           />
           <button
             type="button"
             className="color-compact-button"
             onClick={() => onChange(from)}
-            aria-label="Remove the second color"
-            title="Remove the second color"
+            aria-label="Remove the second colour"
+            title="Remove the second colour"
           >
             ×
           </button>
@@ -126,8 +126,8 @@ export const ColorValueCompact = ({ value, onChange, label }: { value: string; o
           type="button"
           className="color-compact-button"
           onClick={() => onChange(formatColorValue({ from, to: suggestSecondColor(from) }))}
-          aria-label="Add a second color for a gradient"
-          title="Add a second color for a gradient"
+          aria-label="Add a second colour for a gradient"
+          title="Add a second colour for a gradient"
         >
           +
         </button>

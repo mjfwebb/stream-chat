@@ -34,7 +34,7 @@ export const ColorPicker = ({ id, onChange, value, placeholder, setToDefault, ca
       {isTransparent ? (
         <span className="color-picker-checker" aria-hidden="true" />
       ) : (
-        <input id={id} type="color" value={value} onChange={(e) => onChange(e.target.value)} aria-label="Pick a color" />
+        <input id={id} type="color" value={value} onChange={(e) => onChange(e.target.value)} aria-label="Pick a colour" />
       )}
       <input
         id={isTransparent ? id : undefined}
@@ -46,14 +46,14 @@ export const ColorPicker = ({ id, onChange, value, placeholder, setToDefault, ca
         autoComplete="off"
         onChange={(e) => handleText(e.target.value)}
         onBlur={() => setText(value)}
-        aria-label="Color value"
+        aria-label="Colour value"
       />
       {canSetToTransparent && (
         <Button type="secondary" onClick={() => onChange(isTransparent ? '#1b1b2f' : 'transparent')}>
-          {isTransparent ? 'Pick a color' : 'Transparent'}
+          {isTransparent ? 'Pick a colour' : 'Transparent'}
         </Button>
       )}
-      <Button type="ghost" onClick={setToDefault} aria-label="Reset color to default">
+      <Button type="ghost" onClick={setToDefault} aria-label="Reset colour to default">
         Default
       </Button>
     </div>
