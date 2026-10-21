@@ -63,6 +63,11 @@ export const DEFAULT_CHAT_SETTINGS_VALUES = {
   messageBackgroundOpacity: 80,
   messageRadius: 3,
   chatAnchor: 'bottom' as ChatAnchor,
+  highlightPoints: true,
+  highlightMentions: false,
+  highlightFirstMessages: false,
+  highlightColor: '#a970ff',
+  highlightRules: '',
   usernameFilters: '',
   messageFilters: '',
 };
@@ -100,6 +105,11 @@ export const chatSearchParamsMap = {
   messageBackgroundOpacity: 'message-background-opacity',
   messageRadius: 'message-radius',
   chatAnchor: 'chat-anchor',
+  highlightPoints: 'highlight-points',
+  highlightMentions: 'highlight-mentions',
+  highlightFirstMessages: 'highlight-first-messages',
+  highlightColor: 'highlight-color',
+  highlightRules: 'highlight-rules',
   usernameFilters: 'username-filters',
   messageFilters: 'message-filters',
 };

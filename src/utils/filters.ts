@@ -9,8 +9,8 @@ export type UserFilterRule = {
   caseSensitive?: boolean; // default false
 };
 
-export type UserFilterConfig = {
-  rules: UserFilterRule[];
+export type UserFilterConfig<Rule extends UserFilterRule = UserFilterRule> = {
+  rules: Rule[];
 };
 
 export const EMPTY_FILTER_CONFIG: UserFilterConfig = { rules: [] };
@@ -134,18 +134,20 @@ export function encodeFiltersToUrl(cfg: UserFilterConfig): string {
   }
 }
 
-export function decodeFiltersFromUrl(b64u: string | null | undefined): UserFilterConfig {
+// Rules can carry extra fields, such as the color of a highlight rule. They pass through unchanged.
+export function decodeFiltersFromUrl<Rule extends UserFilterRule = UserFilterRule>(b64u: string | null | undefined): UserFilterConfig<Rule> {
+  const empty = EMPTY_FILTER_CONFIG as UserFilterConfig<Rule>;
   if (!b64u) {
-    return EMPTY_FILTER_CONFIG;
+    return empty;
   }
   try {
     const json = fromBase64Url(b64u);
-    const parsed = JSON.parse(json) as UserFilterConfig;
+    const parsed = JSON.parse(json) as UserFilterConfig<Rule>;
     if (!parsed || !Array.isArray(parsed.rules)) {
-      return EMPTY_FILTER_CONFIG;
+      return empty;
     }
     return parsed;
   } catch {
-    return EMPTY_FILTER_CONFIG;
+    return empty;
   }
 }

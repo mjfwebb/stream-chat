@@ -1,5 +1,6 @@
 import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, SETTING_OPTIONS } from '../../constants';
 import { buildFilterRegex, decodeFiltersFromUrl } from '../../utils/filters';
+import { compileHighlightRules, type HighlightRule } from '../../utils/highlights';
 
 // A number from the URL, or the default when it is missing or not a number.
 const numberParam = (searchParams: URLSearchParams, name: string, defaultValue: number): number => {
@@ -35,6 +36,15 @@ export const useChatSearchParams = () => {
 
   // Where new messages appear: 'bottom' (default) or 'top'.
   const chatAnchor = optionParam(searchParams, params.chatAnchor, SETTING_OPTIONS.chatAnchor, 'bottom');
+
+  // Highlights: channel point highlights (on by default), mentions of the channel owner and first messages (off by default).
+  const highlightPoints = searchParams.get(params.highlightPoints) === 'false' ? false : defaults.highlightPoints;
+  const highlightMentions = searchParams.get(params.highlightMentions) === 'true' ? true : defaults.highlightMentions;
+  const highlightFirstMessages = searchParams.get(params.highlightFirstMessages) === 'true' ? true : defaults.highlightFirstMessages;
+  const highlightColor = searchParams.get(params.highlightColor) || defaults.highlightColor;
+
+  // Highlight rules (base64url encoded JSON). Each rule has its own color.
+  const highlightRules = compileHighlightRules(decodeFiltersFromUrl<HighlightRule>(searchParams.get(params.highlightRules)));
 
   // Controls whether chat entries animate in. Defaults to true.
   const animatedEntry = searchParams.get(chatSearchParamsMap.animatedEntry) === 'false' ? false : DEFAULT_CHAT_SETTINGS_VALUES.animatedEntry;
@@ -123,6 +133,11 @@ export const useChatSearchParams = () => {
     messageBackgroundOpacity,
     messageRadius,
     chatAnchor,
+    highlightPoints,
+    highlightMentions,
+    highlightFirstMessages,
+    highlightColor,
+    highlightRules,
     animatedEntry,
     animatedExit,
     backgroundColor,
@@ -161,4 +176,9 @@ export const chatEntryStyleProps = (settings: ReturnType<typeof useChatSearchPar
   showNameAlias: settings.showNameAlias,
   showGifs: settings.showGifs,
   usernameColor: settings.usernameColor,
+  highlightPoints: settings.highlightPoints,
+  highlightMentions: settings.highlightMentions,
+  highlightFirstMessages: settings.highlightFirstMessages,
+  highlightColor: settings.highlightColor,
+  highlightRules: settings.highlightRules,
 });

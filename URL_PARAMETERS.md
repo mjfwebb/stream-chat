@@ -40,6 +40,11 @@ This document describes the URL parameters you can use to customize the chat ove
 | `message-background-opacity`    | Opacity of the message background, 0 to 100                    | `50`                | `80`                    |
 | `message-radius`                | Corner radius of the message background in px                  | `8`                 | `3`                     |
 | `chat-anchor`                   | Where new messages appear: `bottom` or `top`                   | `top`               | `bottom`                |
+| `highlight-points`              | Style channel point highlighted messages like Twitch does      | `false`             | `true`                  |
+| `highlight-mentions`            | Highlight messages that mention the channel                    | `true`              | `false`                 |
+| `highlight-first-messages`      | Highlight a chatter's first message in the channel             | `true`              | `false`                 |
+| `highlight-color`               | Color for mentions and first messages                          | `#ff8800`           | `#a970ff`               |
+| `highlight-rules`               | Rules that color matching messages (set in the editor)         |                     |                         |
 | `show-gifs`                     | Show/hide gifs in chat messages                                | `false`             | `true`                  |
 | `text-stroke-enabled`           | Enable/disable text stroke                                     | `false`             | `false`                 |
 | `text-stroke`                   | CSS text stroke settings                                       | `1px #aeff00`       | `1px black`             |
