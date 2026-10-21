@@ -444,9 +444,22 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
           <>
             <div className="group">
               <h3>Highlights</h3>
-              {toggle('highlightPoints', 'Channel point highlights', 'Messages sent with Highlight My Message get Twitch’s purple style')}
-              {toggle('highlightMentions', 'Mentions of your channel', 'A message that mentions your channel name gets the highlight color')}
-              {toggle('highlightFirstMessages', 'First messages', 'A chatter’s first message in your channel gets the highlight color')}
+              {/* The names are the sample chatters in ChatPreview. Keep them in step. */}
+              {toggle(
+                'highlightPoints',
+                'Channel point highlights',
+                'Messages sent with Highlight My Message get Twitch’s purple style. Preview: Bob.',
+              )}
+              {toggle(
+                'highlightMentions',
+                'Mentions of your channel',
+                'A message that mentions your channel name gets the highlight color. Preview: Diana.',
+              )}
+              {toggle(
+                'highlightFirstMessages',
+                'First messages',
+                'A chatter’s first message in your channel gets the highlight color. Preview: Frank.',
+              )}
               <FormField id="highlight-color" label="Highlight color">
                 <ColorPicker
                   id="highlight-color"
@@ -459,7 +472,9 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             </div>
             <div className="group">
               <h3>Highlight rules</h3>
-              <p className="hint">A message that matches a rule gets that rule’s color. The first matching rule wins.</p>
+              <p className="hint">
+                A message that matches a rule gets that rule’s color. The first matching rule wins. To try it in the preview, match the text catJAM.
+              </p>
               <FilterEditor<HighlightRule>
                 value={highlightConfig}
                 onChange={setHighlightConfig}
