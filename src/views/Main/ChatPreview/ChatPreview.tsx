@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { DEFAULT_CHAT_SETTINGS_VALUES } from '../../../constants';
 import { ChannelChatMessageEvent } from '../../../types/twitchEvents';
-import { buildFilterRegex, decodeFiltersFromUrl, type UserFilterConfig } from '../../../utils/filters';
+import { buildFilterRegex, decodeFiltersFromUrl } from '../../../utils/filters';
+import { isMessageVisible, parseRoles, type VisibilitySettings } from '../../../utils/messageVisibility';
 import { compileHighlightRules, type HighlightRule } from '../../../utils/highlights';
 import { Button } from '../../../components/Button/Button';
 import { ChatEntry } from '../../Chat/ChatEntry';
@@ -116,6 +117,8 @@ const fakeUsers: {
   badges: ChannelChatMessageEvent['badges'];
   // Lets a sample message show a Twitch message type, such as a channel point highlight
   messageType?: ChannelChatMessageEvent['message_type'];
+  // Lets a sample message show as a reply
+  reply?: ChannelChatMessageEvent['reply'];
 }[] = [
   { name: 'Alice', login: 'alice', color: '#ff5733', avatarUrl: 'https://i.pravatar.cc/256?img=10', badges: [] },
   {
@@ -138,6 +141,17 @@ const fakeUsers: {
         info: '12',
       },
     ],
+    reply: {
+      parent_message_id: '0',
+      parent_message_body: 'Kappa5000 keep being awesome!',
+      parent_user_id: '0',
+      parent_user_name: 'Alice',
+      parent_user_login: 'alice',
+      thread_message_id: '0',
+      thread_user_id: '0',
+      thread_user_name: 'Alice',
+      thread_user_login: 'alice',
+    },
   },
   {
     name: 'Diana',
@@ -202,6 +216,7 @@ export const ChatPreview = ({
     showNameAlias: overlayParameters.showNameAlias,
     showGifs: overlayParameters.showGifs,
     usernameColor: overlayParameters.usernameColor,
+    showReplies: overlayParameters.showReplies,
     highlightPoints: overlayParameters.highlightPoints,
     highlightMentions: overlayParameters.highlightMentions,
     highlightFirstMessages: overlayParameters.highlightFirstMessages,
@@ -226,34 +241,20 @@ export const ChatPreview = ({
       message_id: String(idx),
       message: fakeTwitchMessages[idx],
       message_type: user.messageType ?? 'text',
+      ...(user.reply ? { reply: user.reply } : {}),
       badges: user.badges,
       color: user.color,
       eventType: 'channel.chat.message',
     } satisfies ChannelChatMessageEvent;
   });
 
-  // Apply username filter if provided in overlayParameters.usernameFilters
-  const previewUsernameFilterCfg: UserFilterConfig | null = overlayParameters.usernameFilters
-    ? decodeFiltersFromUrl(overlayParameters.usernameFilters)
-    : null;
-  const usernameFilterRegex = previewUsernameFilterCfg ? buildFilterRegex(previewUsernameFilterCfg) : null;
-
-  // Apply message filter if provided in overlayParameters.messageFilters
-  const previewMessageFilterCfg: UserFilterConfig | null = overlayParameters.messageFilters
-    ? decodeFiltersFromUrl(overlayParameters.messageFilters)
-    : null;
-  const messageFilterRegex = previewMessageFilterCfg ? buildFilterRegex(previewMessageFilterCfg) : null;
-
-  const filteredMessages = fakeChatMessageEvents.filter((m) => {
-    if (!usernameFilterRegex && !messageFilterRegex) {
-      return true;
-    }
-
-    const userOk = usernameFilterRegex ? usernameFilterRegex.test(m.chatter_user_name) : true;
-    const msgOk = messageFilterRegex ? messageFilterRegex.test(m.message.text) : true;
-
-    return userOk && msgOk;
-  });
+  // The same rules as the overlay: username and message filters, and the roles to show
+  const visibility: VisibilitySettings = {
+    usernameFilterRegex: buildFilterRegex(decodeFiltersFromUrl(overlayParameters.usernameFilters)),
+    messageFilterRegex: buildFilterRegex(decodeFiltersFromUrl(overlayParameters.messageFilters)),
+    onlyRoles: parseRoles(overlayParameters.onlyRoles),
+  };
+  const filteredMessages = fakeChatMessageEvents.filter((m) => isMessageVisible(m, visibility));
   const hiddenCount = fakeChatMessageEvents.length - filteredMessages.length;
 
   return (

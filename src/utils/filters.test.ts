@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildFilterRegex, type UserFilterConfig } from './filters';
+import { buildFilterRegex, COMMON_BOT_NAMES, withCommandFilter, withCommonBots, type UserFilterConfig } from './filters';
 
 describe('buildUsernameRegex - per-rule case sensitivity', () => {
   it('contains: case-insensitive when caseSensitive=false', () => {
@@ -51,5 +51,38 @@ describe('buildUsernameRegex - per-rule case sensitivity', () => {
     expect(re.test('Mod')).toBe(false); // excluded by exact
     expect(re.test('MOD')).toBe(true); // exact is sensitive, so allowed
     expect(re.test('NightBot')).toBe(false); // excluded by contains (insensitive)
+  });
+});
+
+describe('withCommonBots', () => {
+  it('adds a rule for every common bot to an empty config', () => {
+    const cfg = withCommonBots({ rules: [] });
+    expect(cfg.rules.map((rule) => rule.pattern)).toEqual(COMMON_BOT_NAMES);
+    expect(cfg.rules.every((rule) => rule.matchType === 'exact' && rule.caseSensitive === false)).toBe(true);
+  });
+
+  it('keeps existing rules and skips bots that are already hidden, ignoring case', () => {
+    const cfg = withCommonBots({ rules: [{ matchType: 'exact', pattern: 'nightbot', caseSensitive: false }] });
+    expect(cfg.rules.filter((rule) => rule.pattern.toLowerCase() === 'nightbot')).toHaveLength(1);
+    expect(cfg.rules).toHaveLength(COMMON_BOT_NAMES.length);
+  });
+
+  it('hides the bots once added', () => {
+    const regex = buildFilterRegex(withCommonBots({ rules: [] }))!;
+    expect(regex.test('Nightbot')).toBe(false);
+    expect(regex.test('Alice')).toBe(true);
+  });
+});
+
+describe('withCommandFilter', () => {
+  it('adds a rule that hides messages starting with an exclamation mark', () => {
+    const regex = buildFilterRegex(withCommandFilter({ rules: [] }))!;
+    expect(regex.test('!socials')).toBe(false);
+    expect(regex.test('hello')).toBe(true);
+  });
+
+  it('does not add the rule twice', () => {
+    const once = withCommandFilter({ rules: [] });
+    expect(withCommandFilter(once).rules).toHaveLength(1);
   });
 });

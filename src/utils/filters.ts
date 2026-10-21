@@ -151,3 +151,23 @@ export function decodeFiltersFromUrl<Rule extends UserFilterRule = UserFilterRul
     return empty;
   }
 }
+
+// Bots that many channels run. The "common bots" preset hides their messages.
+export const COMMON_BOT_NAMES = ['Nightbot', 'StreamElements', 'Streamlabs', 'Moobot', 'Fossabot', 'WizeBot'];
+
+/** Adds a username rule for each common bot that the config does not hide yet. */
+export function withCommonBots(cfg: UserFilterConfig): UserFilterConfig {
+  const hidden = new Set(cfg.rules.filter((rule) => rule.matchType === 'exact').map((rule) => rule.pattern.toLowerCase()));
+  const added: UserFilterRule[] = COMMON_BOT_NAMES.filter((name) => !hidden.has(name.toLowerCase())).map((name) => ({
+    matchType: 'exact',
+    pattern: name,
+    caseSensitive: false,
+  }));
+  return { rules: [...cfg.rules, ...added] };
+}
+
+/** Adds a message rule that hides chat commands, such as !socials. It does nothing when the rule is already there. */
+export function withCommandFilter(cfg: UserFilterConfig): UserFilterConfig {
+  const alreadyThere = cfg.rules.some((rule) => rule.matchType === 'wildcard' && rule.pattern === '!*');
+  return alreadyThere ? cfg : { rules: [...cfg.rules, { matchType: 'wildcard', pattern: '!*', caseSensitive: false }] };
+}

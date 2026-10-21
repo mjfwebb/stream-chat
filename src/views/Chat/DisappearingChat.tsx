@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import { store } from '../../store/store';
 import { ChannelChatMessageEvent } from '../../types/twitchEvents';
+import { isMessageVisible } from '../../utils/messageVisibility';
 import { ChatEntry } from './ChatEntry';
 import { chatEntryStyleProps, useChatSearchParams } from './useChatSearchParams';
 
@@ -55,16 +56,7 @@ export const DisappearingChat = () => {
     scrollToBottom();
   }, [chatMessageEvents]);
 
-  const filteredMessages = chatMessageEvents.filter((m) => {
-    if (!chatSearchParams.usernameFilterRegex && !chatSearchParams.messageFilterRegex) {
-      return true;
-    }
-
-    const userOk = chatSearchParams.usernameFilterRegex ? chatSearchParams.usernameFilterRegex.test(m.chatter_user_name) : true;
-    const msgOk = chatSearchParams.messageFilterRegex ? chatSearchParams.messageFilterRegex.test(m.message.text) : true;
-
-    return userOk && msgOk;
-  });
+  const filteredMessages = chatMessageEvents.filter((m) => isMessageVisible(m, chatSearchParams));
 
   return (
     <div className={classNames('chat-disappearing', chatSearchParams.chatAnchor === 'top' && 'chat-disappearing--top')}>

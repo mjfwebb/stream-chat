@@ -13,7 +13,16 @@ import { TextStrokeEditor } from '../../components/TextStrokePicker/TextStrokeEd
 import { useToast } from '../../components/Toast/useToast';
 import { UnitField } from '../../components/UnitField/UnitField';
 import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, SETTING_OPTIONS } from '../../constants';
-import { decodeFiltersFromUrl, EMPTY_FILTER_CONFIG, encodeFiltersToUrl, type UserFilterConfig } from '../../utils/filters';
+import {
+  COMMON_BOT_NAMES,
+  decodeFiltersFromUrl,
+  EMPTY_FILTER_CONFIG,
+  encodeFiltersToUrl,
+  withCommandFilter,
+  withCommonBots,
+  type UserFilterConfig,
+} from '../../utils/filters';
+import { parseRoles, ROLES, type Role } from '../../utils/messageVisibility';
 import { EMPTY_HIGHLIGHT_CONFIG, type HighlightConfig, type HighlightRule } from '../../utils/highlights';
 import { logger } from '../../utils/logger';
 import { buildUpdatedChatUrl, countChangedParams } from './buildChatUrl';
@@ -205,6 +214,18 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
     );
   };
 
+  // The chosen roles are stored as one comma separated value, like `moderator,vip`.
+  const selectedRoles = parseRoles(overlayParameters.onlyRoles);
+  const roleSwitch = (role: Role, title: string, description: string) => (
+    <SwitchRow
+      id={`role-${role}`}
+      title={title}
+      description={description}
+      checked={selectedRoles.includes(role)}
+      onChange={(checked) => update({ onlyRoles: ROLES.filter((r) => (r === role ? checked : selectedRoles.includes(r))).join(',') })}
+    />
+  );
+
   // A slider and a number box for a plain number setting.
   const rangeSetting = (name: NumberKey, label: string, min: number, max: number, hint?: string) => (
     <FormField id={name} label={label} hint={hint}>
@@ -300,6 +321,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               {toggle('showColonAfterDisplayName', 'Colon after name', 'Alice: hello, instead of Alice hello')}
               {toggle('showNameAlias', 'Name aliases', 'Show the Latin login next to localized names')}
               {toggle('showGifs', 'Gifs', 'Show gifs in chat messages')}
+              {toggle('showReplies', 'Reply context', 'Show which message a reply answers, above the reply')}
             </div>
             <div className="group">
               <h3>Sizes</h3>
@@ -462,6 +484,14 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
         return (
           <>
             <div className="group">
+              <h3>Only show messages from</h3>
+              <p className="hint">Turn on one or more roles to hide everyone else. Leave all off to show everyone.</p>
+              {roleSwitch('subscriber', 'Subscribers', 'Includes founders')}
+              {roleSwitch('vip', 'VIPs', 'Chatters with the VIP badge')}
+              {roleSwitch('moderator', 'Moderators', 'Chatters with the moderator badge')}
+              {roleSwitch('broadcaster', 'Broadcaster', 'You, in your own chat')}
+            </div>
+            <div className="group">
               <h3>Hide chatters</h3>
               <p className="hint">Messages from a matching username never appear. This is useful for bots.</p>
               <FilterEditor
@@ -471,6 +501,12 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
                 placeholder="Username"
                 emptyText="No rules. Everyone shows."
               />
+              <div>
+                <Button type="ghost" onClick={() => setUserFilterConfig(withCommonBots)}>
+                  Add common bots
+                </Button>
+              </div>
+              <p className="hint">Adds {COMMON_BOT_NAMES.join(', ')}. Bots that are already listed are skipped.</p>
             </div>
             <div className="group">
               <h3>Hide messages</h3>
@@ -482,6 +518,11 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
                 placeholder="Text to match"
                 emptyText="No rules. Every message shows."
               />
+              <div>
+                <Button type="ghost" onClick={() => setMessageFilterConfig(withCommandFilter)}>
+                  Hide chat commands
+                </Button>
+              </div>
               <details className="help">
                 <summary>How wildcard rules work</summary>
                 <p>
