@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
 
+import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { store } from '../../store/store';
 import { ChannelChatMessageEvent } from '../../types/twitchEvents';
 import { ChatEntry } from './ChatEntry';
-import { useChatSearchParams } from './useChatSearchParams';
+import { chatEntryStyleProps, useChatSearchParams } from './useChatSearchParams';
 
 type MessageProps = {
   chatMessage: ChannelChatMessageEvent;
@@ -26,17 +27,7 @@ const Message = ({ chatMessage }: MessageProps) => {
 
   const ChatEntryProps = {
     chatMessage,
-    backgroundColor: chatSearchParams.backgroundColor,
-    showAvatars: chatSearchParams.showAvatars,
-    showBorders: chatSearchParams.showBorders,
-    dropShadowEnabled: chatSearchParams.dropShadowEnabled,
-    dropShadowSettings: chatSearchParams.dropShadowSettings,
-    showColonAfterDisplayName: chatSearchParams.showColonAfterDisplayName,
-    textStrokeEnabled: chatSearchParams.textStrokeEnabled,
-    textStrokeSettings: chatSearchParams.textStrokeSettings,
-    chatMessagePadding: chatSearchParams.chatMessagePadding,
-    showNameAlias: chatSearchParams.showNameAlias,
-    showGifs: chatSearchParams.showGifs,
+    ...chatEntryStyleProps(chatSearchParams),
     userInformationStore: store.getState().userInformation,
   };
 
@@ -76,7 +67,7 @@ export const DisappearingChat = () => {
   });
 
   return (
-    <div className="chat-disappearing">
+    <div className={classNames('chat-disappearing', chatSearchParams.chatAnchor === 'top' && 'chat-disappearing--top')}>
       <AnimatePresence>
         {filteredMessages.map((chatMessage) => (
           <Message key={chatMessage.message_id} chatMessage={chatMessage} />

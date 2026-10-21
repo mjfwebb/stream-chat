@@ -4,6 +4,7 @@ import { ChannelChatMessageEvent } from '../../../types/twitchEvents';
 import { buildFilterRegex, decodeFiltersFromUrl, type UserFilterConfig } from '../../../utils/filters';
 import { Button } from '../../../components/Button/Button';
 import { ChatEntry } from '../../Chat/ChatEntry';
+import { overlayCssVariables } from '../../Chat/overlayStyle';
 
 import './ChatPreview.less';
 
@@ -168,6 +169,7 @@ export const ChatPreview = ({
     showColonAfterDisplayName: overlayParameters.showColonAfterDisplayName,
     showNameAlias: overlayParameters.showNameAlias,
     showGifs: overlayParameters.showGifs,
+    usernameColor: overlayParameters.usernameColor,
     dropShadowEnabled: overlayParameters.dropShadowEnabled,
     dropShadowSettings: overlayParameters.dropShadowSettings,
     textStrokeEnabled: overlayParameters.textStrokeEnabled,
@@ -245,7 +247,7 @@ export const ChatPreview = ({
           {overlayParametersToChatEntryProps.width} × {overlayParametersToChatEntryProps.height}
         </span>
         <div
-          className="chat-preview-overlay"
+          className={`chat-preview-overlay ${overlayParameters.chatAnchor === 'top' ? 'chat-preview-overlay--top' : ''}`}
           key={replayKey}
           style={{
             background: overlayParametersToChatEntryProps.backgroundColor,
@@ -253,6 +255,7 @@ export const ChatPreview = ({
             color: overlayParametersToChatEntryProps.foregroundColor,
             fontSize: overlayParametersToChatEntryProps.fontSize,
             fontFamily: overlayParametersToChatEntryProps.fontFamily,
+            ...overlayCssVariables(overlayParameters),
           }}
         >
           {filteredMessages.map((fakeChatMessageEvent) => (

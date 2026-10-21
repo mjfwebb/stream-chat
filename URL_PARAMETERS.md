@@ -1,11 +1,11 @@
 # URL Parameters Reference
 
-This document describes the URL parameters you can use to customize the chat overlay in this project. These parameters can be passed as query parameters in the URL (e.g., `/chat?background-color=%23ffffff&font-size=20px`).
+This document describes the URL parameters you can use to customize the chat overlay in this project. These parameters can be passed as query parameters in the URL, for example `/chat?background-color=%23ffffff&font-size=20px`.
 
 ## Important Notes
 
 - **`access_token` is always required.** Without it, chat will not function.
-- **`channel` is optional.** If not defined, the overlay will default to the authenticated user's own channel.
+- **`channel` is optional.** By default the overlay shows the authenticated user's own channel.
 - **Channel names are case sensitive.**
 - **Default values** for all other parameters are shown below and are defined in the code. See also `src/constants.ts`.
 
@@ -31,6 +31,15 @@ This document describes the URL parameters you can use to customize the chat ove
 | `show-colon-after-display-name` | Show colon after display name                                  | `false`             | `false`                 |
 | `show-name-alias`               | Show/hide name alias for users                                 | `false`             | `true`                  |
 | `max-messages`                  | Number of recent messages to keep (older ones are dropped)     | `50`                | `100`                   |
+| `avatar-size`                   | Avatar size in px                                              | `48`                | `36`                    |
+| `badge-size`                    | Badge height in px                                             | `24`                | `19`                    |
+| `emote-size`                    | Maximum emote height in px                                     | `48`                | `36`                    |
+| `line-height`                   | Height of one line of a message in px                          | `40`                | `32`                    |
+| `username-color`                | Username color: `corrected`, `twitch` or `text`                | `twitch`            | `corrected`             |
+| `message-background-color`      | Background color behind each message (hex or `transparent`)    | `#000000`           | `transparent`           |
+| `message-background-opacity`    | Opacity of the message background, 0 to 100                    | `50`                | `80`                    |
+| `message-radius`                | Corner radius of the message background in px                  | `8`                 | `3`                     |
+| `chat-anchor`                   | Where new messages appear: `bottom` or `top`                   | `top`               | `bottom`                |
 | `show-gifs`                     | Show/hide gifs in chat messages                                | `false`             | `true`                  |
 | `text-stroke-enabled`           | Enable/disable text stroke                                     | `false`             | `false`                 |
 | `text-stroke`                   | CSS text stroke settings                                       | `1px #aeff00`       | `1px black`             |

@@ -12,7 +12,7 @@ import { TextShadowStacker } from '../../components/TextShadowPicker/TextShadowS
 import { TextStrokeEditor } from '../../components/TextStrokePicker/TextStrokeEditor';
 import { useToast } from '../../components/Toast/useToast';
 import { UnitField } from '../../components/UnitField/UnitField';
-import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES } from '../../constants';
+import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES, SETTING_OPTIONS } from '../../constants';
 import { decodeFiltersFromUrl, EMPTY_FILTER_CONFIG, encodeFiltersToUrl, type UserFilterConfig } from '../../utils/filters';
 import { logger } from '../../utils/logger';
 import { buildUpdatedChatUrl, countChangedParams } from './buildChatUrl';
@@ -133,6 +133,11 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
           patch[key] = raw === 'true';
         } else if (typeof defaultValue === 'number') {
           patch[key] = Number(raw);
+        } else if (key in SETTING_OPTIONS) {
+          // Ignore a value that the overlay would not accept either
+          if ((SETTING_OPTIONS as Record<string, readonly string[]>)[key].includes(raw)) {
+            patch[key] = raw;
+          }
         } else {
           patch[key] = raw;
         }
@@ -213,6 +218,19 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
     </FormField>
   );
 
+  // A menu for a setting that accepts a fixed set of values.
+  const selectSetting = (name: keyof typeof SETTING_OPTIONS, label: string, options: { value: string; label: string }[], hint?: string) => (
+    <FormField id={name} label={label} hint={hint}>
+      <select id={name} value={overlayParameters[name]} onChange={(e) => update({ [name]: e.target.value } as Partial<Params>)}>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </FormField>
+  );
+
   const renderPane = () => {
     switch (activeTab) {
       case 'look':
@@ -273,6 +291,39 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               {toggle('showGifs', 'Gifs', 'Show gifs in chat messages')}
             </div>
             <div className="group">
+              <h3>Sizes</h3>
+              {rangeSetting('avatarSize', 'Avatar size (px)', 16, 96)}
+              {rangeSetting('badgeSize', 'Badge size (px)', 12, 48)}
+              {rangeSetting('emoteSize', 'Emote size (px)', 16, 96)}
+              {rangeSetting('lineHeight', 'Line height (px)', 16, 80, 'The height of one line of text. Raise it with the font size.')}
+            </div>
+            <div className="group">
+              <h3>Message style</h3>
+              {selectSetting(
+                'usernameColor',
+                'Username color',
+                [
+                  { value: 'corrected', label: 'Twitch color, adjusted for contrast' },
+                  { value: 'twitch', label: 'Twitch color' },
+                  { value: 'text', label: 'Same as text color' },
+                ],
+                'Adjusting for contrast keeps dark names readable on a dark background.',
+              )}
+              <FormField id="message-background-color" label="Message background">
+                <ColorPicker
+                  id="message-background-color"
+                  placeholder="#000000"
+                  value={overlayParameters.messageBackgroundColor}
+                  onChange={(messageBackgroundColor) => update({ messageBackgroundColor })}
+                  setToDefault={() => reset('messageBackgroundColor')}
+                  canSetToTransparent
+                />
+              </FormField>
+              {overlayParameters.messageBackgroundColor !== 'transparent' &&
+                rangeSetting('messageBackgroundOpacity', 'Background opacity (%)', 0, 100)}
+              {rangeSetting('messageRadius', 'Corner radius (px)', 0, 24)}
+            </div>
+            <div className="group">
               <h3>Emote services</h3>
               <p className="hint">Twitch emotes always show. These apply to the overlay in OBS. The preview does not use third-party emotes.</p>
               {toggle('sevenTVEmotes', '7TV', 'Emotes from 7TV')}
@@ -293,6 +344,18 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             <div className="group">
               <h3>Spacing</h3>
               {unitSetting('chatMessagePadding', 'padding-value', 'Padding around each message', ['px', 'em', 'rem', 'vh'], [0, 32], [0, 4])}
+            </div>
+            <div className="group">
+              <h3>Alignment</h3>
+              {selectSetting(
+                'chatAnchor',
+                'New messages appear at',
+                [
+                  { value: 'bottom', label: 'The bottom, older messages move up' },
+                  { value: 'top', label: 'The top, chat grows downward' },
+                ],
+                'The overlay does the same: messages start at this edge.',
+              )}
             </div>
             <div className="group">
               <h3>History</h3>

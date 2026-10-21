@@ -54,6 +54,15 @@ export const DEFAULT_CHAT_SETTINGS_VALUES = {
   betterTTVEmotes: true,
   frankerFaceZEmotes: true,
   maxMessages: 100,
+  avatarSize: 36,
+  badgeSize: 19,
+  emoteSize: 36,
+  lineHeight: 32,
+  usernameColor: 'corrected' as UsernameColorMode,
+  messageBackgroundColor: 'transparent',
+  messageBackgroundOpacity: 80,
+  messageRadius: 3,
+  chatAnchor: 'bottom' as ChatAnchor,
   usernameFilters: '',
   messageFilters: '',
 };
@@ -82,6 +91,24 @@ export const chatSearchParamsMap = {
   betterTTVEmotes: 'bttv-emotes',
   frankerFaceZEmotes: 'ffz-emotes',
   maxMessages: 'max-messages',
+  avatarSize: 'avatar-size',
+  badgeSize: 'badge-size',
+  emoteSize: 'emote-size',
+  lineHeight: 'line-height',
+  usernameColor: 'username-color',
+  messageBackgroundColor: 'message-background-color',
+  messageBackgroundOpacity: 'message-background-opacity',
+  messageRadius: 'message-radius',
+  chatAnchor: 'chat-anchor',
   usernameFilters: 'username-filters',
   messageFilters: 'message-filters',
 };
+
+// Settings that only accept a fixed set of values. The first value is the default.
+export const SETTING_OPTIONS = {
+  usernameColor: ['corrected', 'twitch', 'text'],
+  chatAnchor: ['bottom', 'top'],
+} as const;
+
+export type UsernameColorMode = (typeof SETTING_OPTIONS.usernameColor)[number];
+export type ChatAnchor = (typeof SETTING_OPTIONS.chatAnchor)[number];
