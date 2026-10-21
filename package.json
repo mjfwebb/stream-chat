@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@sentry/react": "10.76.2",
-    "@twemoji/api": "15.1.0",
+    "@twemoji/api": "17.0.3",
     "classnames": "2.5.1",
     "color": "5.0.3",
     "motion": "12.43.0",
