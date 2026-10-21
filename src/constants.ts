@@ -12,7 +12,6 @@ export const HOUR_MS = 3600000;
 // Twitch asks apps to validate their token every hour.
 export const TOKEN_VALIDATION_INTERVAL_MS = HOUR_MS;
 export const MAX_TWITCH_MESSAGE_LENGTH = 500;
-export const CHAT_MESSAGES_TO_RETAIN = 20;
 
 const PRESET_CHAT_SETTINGS_VALUES = {
   dropShadowSettingsPresetSmall: '1px 1px 2px #000000ff',
@@ -51,6 +50,10 @@ export const DEFAULT_CHAT_SETTINGS_VALUES = {
   showNameAlias: true,
   animatedEntry: true,
   showGifs: true,
+  sevenTVEmotes: true,
+  betterTTVEmotes: true,
+  frankerFaceZEmotes: true,
+  maxMessages: 100,
   usernameFilters: '',
   messageFilters: '',
 };
@@ -75,6 +78,10 @@ export const chatSearchParamsMap = {
   chatMessagePadding: 'chat-message-padding',
   showNameAlias: 'show-name-alias',
   showGifs: 'show-gifs',
+  sevenTVEmotes: '7tv-emotes',
+  betterTTVEmotes: 'bttv-emotes',
+  frankerFaceZEmotes: 'ffz-emotes',
+  maxMessages: 'max-messages',
   usernameFilters: 'username-filters',
   messageFilters: 'message-filters',
 };

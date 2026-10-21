@@ -21,6 +21,7 @@ import './ChatSettings.less';
 
 type Params = typeof DEFAULT_CHAT_SETTINGS_VALUES;
 type BooleanKey = { [K in keyof Params]: Params[K] extends boolean ? K : never }[keyof Params];
+type NumberKey = { [K in keyof Params]: Params[K] extends number ? K : never }[keyof Params];
 type UnitName = 'fontSize' | 'width' | 'height' | 'chatMessagePadding';
 
 // Settings that the URL stores as one value with a unit, such as font-size=20px.
@@ -188,6 +189,30 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
     );
   };
 
+  // A slider and a number box for a plain number setting.
+  const rangeSetting = (name: NumberKey, label: string, min: number, max: number, hint?: string) => (
+    <FormField id={name} label={label} hint={hint}>
+      <div className="inline">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={overlayParameters[name]}
+          onChange={(e) => update({ [name]: Number(e.target.value) } as Partial<Params>)}
+          aria-label={`${label} slider`}
+        />
+        <input
+          id={name}
+          type="number"
+          min={min}
+          max={max}
+          value={overlayParameters[name]}
+          onChange={(e) => update({ [name]: Number(e.target.value) } as Partial<Params>)}
+        />
+      </div>
+    </FormField>
+  );
+
   const renderPane = () => {
     switch (activeTab) {
       case 'look':
@@ -247,6 +272,13 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               {toggle('showNameAlias', 'Name aliases', 'Show the Latin login next to localized names')}
               {toggle('showGifs', 'Gifs', 'Show gifs in chat messages')}
             </div>
+            <div className="group">
+              <h3>Emote services</h3>
+              <p className="hint">Twitch emotes always show. These apply to the overlay in OBS. The preview does not use third-party emotes.</p>
+              {toggle('sevenTVEmotes', '7TV', 'Emotes from 7TV')}
+              {toggle('betterTTVEmotes', 'BetterTTV', 'Emotes from BetterTTV')}
+              {toggle('frankerFaceZEmotes', 'FrankerFaceZ', 'Emotes from FrankerFaceZ')}
+            </div>
           </>
         );
       case 'layout':
@@ -262,6 +294,10 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               <h3>Spacing</h3>
               {unitSetting('chatMessagePadding', 'padding-value', 'Padding around each message', ['px', 'em', 'rem', 'vh'], [0, 32], [0, 4])}
             </div>
+            <div className="group">
+              <h3>History</h3>
+              {rangeSetting('maxMessages', 'Messages to keep', 10, 500, 'Older messages are dropped. This keeps the overlay fast on a long stream.')}
+            </div>
           </>
         );
       case 'motion':
@@ -270,28 +306,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             <h3>Messages in and out</h3>
             {toggle('animatedEntry', 'Animate entry', 'New messages slide in')}
             {toggle('animatedExit', 'Animate exit', 'Messages fade away after a delay')}
-            {overlayParameters.animatedExit && (
-              <FormField id="secondsBeforeExit" label="Seconds before a message leaves">
-                <div className="inline">
-                  <input
-                    type="range"
-                    min={1}
-                    max={60}
-                    value={overlayParameters.secondsBeforeExit}
-                    onChange={(e) => update({ secondsBeforeExit: Number(e.target.value) })}
-                    aria-label="Seconds before exit slider"
-                  />
-                  <input
-                    id="secondsBeforeExit"
-                    type="number"
-                    min={1}
-                    max={60}
-                    value={overlayParameters.secondsBeforeExit}
-                    onChange={(e) => update({ secondsBeforeExit: Number(e.target.value) })}
-                  />
-                </div>
-              </FormField>
-            )}
+            {overlayParameters.animatedExit && rangeSetting('secondsBeforeExit', 'Seconds before a message leaves', 1, 60)}
           </div>
         );
       case 'effects':

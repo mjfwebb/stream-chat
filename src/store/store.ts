@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { DEFAULT_CHAT_SETTINGS_VALUES } from '../constants';
 import { UserInformation } from '../handlers/twitch/helix/schemas';
 import { ChannelChatMessageDeleteEvent, ChannelChatMessageEvent } from '../types/twitchEvents';
 import { ChatBadge, ChatCheer, ChatEmote } from '../types/types';
@@ -28,6 +29,9 @@ interface StoreState {
 
   removeChatEmote: (emoteId: string) => void;
   chatMessageEvents: ChannelChatMessageEvent[];
+  // Oldest messages are dropped when the list grows past this, so a long stream does not use more and more memory.
+  maxChatMessages: number;
+  setMaxChatMessages: (max: number) => void;
   addChatMessage: (event: ChannelChatMessageEvent) => void;
   deleteChatMessage: (event: ChannelChatMessageDeleteEvent) => void;
   removeChatMessage: (event: ChannelChatMessageEvent) => void;
@@ -58,10 +62,12 @@ export const store = create<StoreState>((set) => ({
     }));
   },
   chatMessageEvents: [],
+  maxChatMessages: DEFAULT_CHAT_SETTINGS_VALUES.maxMessages,
+  setMaxChatMessages: (max: number) => set({ maxChatMessages: max }),
   addChatMessage: (chatMessage: ChannelChatMessageEvent) => {
     set((state) => ({
       ...state,
-      chatMessageEvents: [...state.chatMessageEvents, chatMessage],
+      chatMessageEvents: [...state.chatMessageEvents, chatMessage].slice(-state.maxChatMessages),
     }));
   },
   deleteChatMessage: (chatMessage: ChannelChatMessageDeleteEvent) => {
