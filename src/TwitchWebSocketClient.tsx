@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import useWebSocket from 'react-use-websocket';
+import { useWebSocket } from './utils/useWebSocket';
 import { TWITCH_WEBSOCKET_EVENTSUB_URL } from './constants';
 import { isEventSubReconnectMessage, isEventSubWelcomeMessage, isSubscriptionEvent } from './handlers/twitch/event-sub/schemas';
 import { subscribeToChat } from './handlers/twitch/event-sub/subscribers/subscribeToChat';

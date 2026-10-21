@@ -1,21 +1,21 @@
 {
   "name": "twitch-chat",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsgo -b && vite build",
+    "build": "tsc -b && vite build",
     "test": "vitest",
     "lint": "oxlint --type-aware",
     "preview": "vite preview",
-    "typecheck": "tsgo -b",
+    "typecheck": "tsc -b",
     "format:check": "oxfmt --check .",
     "format:fix": "oxfmt ."
   },
   "dependencies": {
     "@sentry/react": "10.76.2",
-    "@twemoji/api": "15.1.0",
+    "@twemoji/api": "17.0.3",
     "classnames": "2.5.1",
     "color": "5.0.3",
     "motion": "12.43.0",
@@ -25,22 +25,21 @@
     "react-use-websocket": "4.13.0",
     "react-virtuoso": "4.18.19",
     "wouter": "3.13.0",
-    "zod": "3.25.76",
+    "zod": "4.6.7",
     "zustand": "5.0.15"
   },
   "devDependencies": {
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@typescript/native-preview": "7.0.0-dev.20260707.2",
-    "@vitejs/plugin-react-swc": "3.11.0",
+    "@vitejs/plugin-react-swc": "4.3.3",
     "less": "4.9.1",
     "oxfmt": "0.73.0",
     "oxlint": "1.88.0",
     "oxlint-tsgolint": "7.0.2004",
     "styled-components": "6.6.0",
     "typescript": "7.0.2",
-    "vite": "6.4.4",
+    "vite": "8.3.4",
     "vitest": "3.2.7"
   },
   "engines": {

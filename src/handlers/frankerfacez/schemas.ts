@@ -8,11 +8,12 @@ export const frankerFaceZEmoteSchema = z.object({
   modifier: z.boolean(),
   modifier_flags: z.number(),
   name: z.string(),
-  urls: z.record(z.string()),
+  urls: z.record(z.string(), z.string()),
 });
 
 export const frankerFaceZEmoteSetsSchema = z.optional(
   z.record(
+    z.string(),
     z.object({
       id: z.number(),
       title: z.string(),
