@@ -171,9 +171,9 @@ export const TwitchConnectPage = () => {
           Design an overlay with a live preview, then paste one URL into OBS. Emotes from Twitch, 7TV, BetterTTV and FrankerFaceZ show up as they do
           in chat.
         </p>
-        <button type="button" className="twitch-button" onClick={handleLogin}>
+        <Button type="twitch" onClick={handleLogin}>
           Connect with Twitch
-        </button>
+        </Button>
         <div className="permissions">
           <b>What you allow</b>
           <ul>

@@ -1,9 +1,4 @@
-.studio-wrap {
-  max-width: 1320px;
-  margin-inline: auto;
-  padding-inline: 16px;
-  box-sizing: border-box;
-}
+@import (reference) '../../styles/mixins.less';
 
 .studio-header {
   background: var(--surface);
@@ -52,8 +47,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+      .focus-ring();
     }
   }
 }
@@ -68,7 +62,7 @@
   gap: 8px;
   padding: 4px 6px 4px 10px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 13px;
 
   small {
@@ -132,33 +126,6 @@
     color: var(--muted);
     font-size: 16px;
   }
-
-  code {
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    background: var(--surface-2);
-  }
-}
-
-.twitch-button {
-  padding: 11px 20px;
-  border: 1px solid #9146ff;
-  border-radius: 10px;
-  background: #9146ff;
-  color: #fff;
-  font: inherit;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-
-  &:hover {
-    filter: brightness(1.1);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
 }
 
 .permissions {
@@ -216,47 +183,14 @@
     gap: 8px;
     margin-top: 8px;
   }
-
-  :where(input[type='text']) {
-    box-sizing: border-box;
-    width: 100%;
-    min-width: 0;
-    padding: 7px 10px;
-    background: var(--surface-2);
-    color: var(--fg);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    font: inherit;
-
-    &:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
-  }
-
-  .inline {
-    display: flex;
-    gap: 8px;
-  }
-
-  .hint {
-    margin: 0;
-    color: var(--muted);
-    font-size: 12.5px;
-  }
 }
 
 .card {
+  .surface-raised();
   display: grid;
   gap: 14px;
   min-width: 0;
   padding: 22px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.4),
-    0 8px 28px rgba(0, 0, 0, 0.35);
 
   h2,
   h3 {

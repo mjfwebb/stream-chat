@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '../../components/Button/Button';
 import { ColorPicker } from '../../components/ColorPicker/ColorPicker';
 import { ConfirmModal } from '../../components/ConfirmModal/ConfirmModal';
 import { CopyButton } from '../../components/CopyButton/CopyButton';
 import FilterEditor from '../../components/FilterEditor/FilterEditor';
+import { FormField } from '../../components/FormField/FormField';
 import { SourceUrl } from '../../components/SourceUrl/SourceUrl';
 import { SwitchRow } from '../../components/SwitchRow/SwitchRow';
 import { TextShadowStacker } from '../../components/TextShadowPicker/TextShadowStacker';
@@ -12,14 +13,18 @@ import { TextStrokeEditor } from '../../components/TextStrokePicker/TextStrokeEd
 import { useToast } from '../../components/Toast/useToast';
 import { UnitField } from '../../components/UnitField/UnitField';
 import { chatSearchParamsMap, DEFAULT_CHAT_SETTINGS_VALUES } from '../../constants';
-import { useDebounce } from '../../hooks/useDebounce';
 import { decodeFiltersFromUrl, EMPTY_FILTER_CONFIG, encodeFiltersToUrl, type UserFilterConfig } from '../../utils/filters';
 import { logger } from '../../utils/logger';
 import { buildUpdatedChatUrl, countChangedParams } from './buildChatUrl';
 import { ChatPreview } from './ChatPreview/ChatPreview';
 import './ChatSettings.less';
 
-const multiPartSettingsMapForLoading = {
+type Params = typeof DEFAULT_CHAT_SETTINGS_VALUES;
+type BooleanKey = { [K in keyof Params]: Params[K] extends boolean ? K : never }[keyof Params];
+type UnitName = 'fontSize' | 'width' | 'height' | 'chatMessagePadding';
+
+// Settings that the URL stores as one value with a unit, such as font-size=20px.
+const multiPartSettingsMapForLoading: Record<string, [keyof Params, keyof Params]> = {
   'font-size': ['fontSizeValue', 'fontSizeUnit'],
   width: ['widthValue', 'widthUnit'],
   height: ['heightValue', 'heightUnit'],
@@ -43,49 +48,31 @@ const TABS: { id: TabId; label: string }[] = [
 
 export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChatUrl: (url: string) => void }) => {
   const [overlayParameters, setOverlayParameters] = useState(DEFAULT_CHAT_SETTINGS_VALUES);
+  // These four have their own editors, so they live outside overlayParameters and are merged in below.
+  const [dropShadowSettings, setDropShadowSettings] = useState(DEFAULT_CHAT_SETTINGS_VALUES.dropShadowSettings);
+  const [textStrokeSettings, setTextStrokeSettings] = useState(DEFAULT_CHAT_SETTINGS_VALUES.textStrokeSettings);
+  const [userFilterConfig, setUserFilterConfig] = useState<UserFilterConfig>(EMPTY_FILTER_CONFIG);
+  const [messageFilterConfig, setMessageFilterConfig] = useState<UserFilterConfig>(EMPTY_FILTER_CONFIG);
   const [loadSettingsError, setLoadSettingsError] = useState('');
   const [loadingUrl, setLoadingUrl] = useState('');
   const [importOpen, setImportOpen] = useState(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('look');
   const [replayKey, setReplayKey] = useState(0);
-  const [dropShadowSettings, setDropShadowSettings] = useState(overlayParameters.dropShadowSettings);
-  const debouncedDropShadowSettings = useDebounce(dropShadowSettings, 300);
-  const [textStrokeSettings, setTextStrokeSettings] = useState(overlayParameters.textStrokeSettings);
-  const debouncedTextStrokeSettings = useDebounce(textStrokeSettings, 300);
-  const [userFilterConfig, setUserFilterConfig] = useState<UserFilterConfig>(decodeFiltersFromUrl(overlayParameters.usernameFilters));
-  const [messageFilterConfig, setMessageFilterConfig] = useState<UserFilterConfig>(decodeFiltersFromUrl(overlayParameters.messageFilters));
   const toast = useToast();
 
-  useEffect(() => {
-    setOverlayParameters((prev) => ({
-      ...prev,
-      dropShadowSettings: debouncedDropShadowSettings,
-    }));
-  }, [debouncedDropShadowSettings]);
+  const update = (patch: Partial<Params>) => setOverlayParameters((prev) => ({ ...prev, ...patch }));
+  const reset = (...keys: (keyof Params)[]) =>
+    update(Object.fromEntries(keys.map((key) => [key, DEFAULT_CHAT_SETTINGS_VALUES[key]])) as Partial<Params>);
 
-  useEffect(() => {
-    setOverlayParameters((prev) => ({
-      ...prev,
-      textStrokeSettings: debouncedTextStrokeSettings,
-    }));
-  }, [debouncedTextStrokeSettings]);
-
-  useEffect(() => {
-    // Sync encoded filters whenever config changes
-    const encoded = encodeFiltersToUrl(userFilterConfig);
-    setOverlayParameters((prev) => ({ ...prev, usernameFilters: encoded }));
-  }, [userFilterConfig]);
-
-  useEffect(() => {
-    // Sync encoded filters whenever config changes
-    const encoded = encodeFiltersToUrl(messageFilterConfig);
-    setOverlayParameters((prev) => ({ ...prev, messageFilters: encoded }));
-  }, [messageFilterConfig]);
-
-  const update = (patch: Partial<typeof DEFAULT_CHAT_SETTINGS_VALUES>) => setOverlayParameters((prev) => ({ ...prev, ...patch }));
-
-  const pendingUrl = buildUpdatedChatUrl(chatUrl, overlayParameters);
+  const currentParameters: Params = {
+    ...overlayParameters,
+    dropShadowSettings,
+    textStrokeSettings,
+    usernameFilters: encodeFiltersToUrl(userFilterConfig),
+    messageFilters: encodeFiltersToUrl(messageFilterConfig),
+  };
+  const pendingUrl = buildUpdatedChatUrl(chatUrl, currentParameters);
   const pendingChanges = countChangedParams(chatUrl, pendingUrl);
   const filterRuleCount = (userFilterConfig.rules?.length ?? 0) + (messageFilterConfig.rules?.length ?? 0);
 
@@ -95,9 +82,9 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
   };
 
   const setParametersToDefault = () => {
+    setOverlayParameters(DEFAULT_CHAT_SETTINGS_VALUES);
     setDropShadowSettings(DEFAULT_CHAT_SETTINGS_VALUES.dropShadowSettings);
     setTextStrokeSettings(DEFAULT_CHAT_SETTINGS_VALUES.textStrokeSettings);
-    setOverlayParameters(DEFAULT_CHAT_SETTINGS_VALUES);
     setUserFilterConfig(EMPTY_FILTER_CONFIG);
     setMessageFilterConfig(EMPTY_FILTER_CONFIG);
   };
@@ -115,92 +102,48 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
     try {
       const url = new URL(loadingUrl);
 
-      // Set all values to defaults to normalize
+      // Start from the defaults, then apply every parameter that the URL sets.
       setParametersToDefault();
+      const patch: Record<string, unknown> = {};
 
-      // Now load the chat settings from the URL
       for (const [key, urlParam] of Object.entries(chatSearchParamsMap)) {
-        const value = url.searchParams.get(urlParam) ?? DEFAULT_CHAT_SETTINGS_VALUES[key as keyof typeof DEFAULT_CHAT_SETTINGS_VALUES];
+        const raw = url.searchParams.get(urlParam);
+        if (raw === null) {
+          continue;
+        }
+        const defaultValue = DEFAULT_CHAT_SETTINGS_VALUES[key as keyof Params];
 
-        // Special-case: stacked text-shadows (comma-separated)
         if (key === 'dropShadowSettings') {
-          const shadowValue = url.searchParams.get(urlParam);
-          if (shadowValue != null) {
-            // Assign decoded, comma-separated shadow string to local and overlay state
-            setDropShadowSettings(shadowValue);
-            setOverlayParameters((prev) => ({ ...prev, dropShadowSettings: shadowValue }));
+          setDropShadowSettings(raw);
+        } else if (key === 'textStrokeSettings') {
+          setTextStrokeSettings(raw);
+        } else if (key === 'usernameFilters') {
+          setUserFilterConfig(decodeFiltersFromUrl(raw));
+        } else if (key === 'messageFilters') {
+          setMessageFilterConfig(decodeFiltersFromUrl(raw));
+        } else if (urlParam in multiPartSettingsMapForLoading) {
+          const match = raw.match(multiPartRegex);
+          if (match?.groups) {
+            const [valueKey, unitKey] = multiPartSettingsMapForLoading[urlParam];
+            patch[valueKey] = Number(match.groups.value);
+            patch[unitKey] = match.groups.unit;
           }
-          logger.debug('Loaded drop shadow setting:', urlParam, { shadowValue });
-          continue;
-        }
-
-        // Special-case: text stroke (width + color)
-        if (key === 'textStrokeSettings') {
-          const strokeVal = url.searchParams.get(urlParam);
-          if (strokeVal != null) {
-            setTextStrokeSettings(strokeVal);
-            setOverlayParameters((prev) => ({ ...prev, textStrokeSettings: strokeVal }));
-          }
-          logger.debug('Loaded text stroke setting:', urlParam, { strokeVal });
-          continue;
-        }
-
-        if (Object.keys(multiPartSettingsMapForLoading).includes(urlParam)) {
-          const match = String(value).match(multiPartRegex);
-          if (match) {
-            const sizeValue = Number(match.groups?.value);
-            const sizeUnit = match.groups?.unit;
-            setOverlayParameters((prev) => ({
-              ...prev,
-              [multiPartSettingsMapForLoading[urlParam as keyof typeof multiPartSettingsMapForLoading][0]]: sizeValue,
-              [multiPartSettingsMapForLoading[urlParam as keyof typeof multiPartSettingsMapForLoading][1]]: sizeUnit,
-            }));
-            logger.debug('Loaded multi-part setting:', urlParam, { sizeValue, sizeUnit });
-          }
-          continue;
-        }
-
-        // Special-case: username filters param (base64url encoded)
-        if (key === 'usernameFilters') {
-          const decoded = decodeFiltersFromUrl(url.searchParams.get(urlParam));
-          setUserFilterConfig(decoded);
-          setOverlayParameters((prev) => ({ ...prev, usernameFilters: encodeFiltersToUrl(decoded) }));
-          logger.debug('Loaded username filters:', urlParam, { decoded });
-          continue;
-        }
-
-        // Special-case: message filters param (base64url encoded)
-        if (key === 'messageFilters') {
-          const decoded = decodeFiltersFromUrl(url.searchParams.get(urlParam));
-          setMessageFilterConfig(decoded);
-          setOverlayParameters((prev) => ({ ...prev, messageFilters: encodeFiltersToUrl(decoded) }));
-          logger.debug('Loaded message filters:', urlParam, { decoded });
-          continue;
-        }
-
-        const isBooleanSetting = typeof DEFAULT_CHAT_SETTINGS_VALUES[key as keyof typeof DEFAULT_CHAT_SETTINGS_VALUES] === 'boolean';
-        // If the setting is a boolean, convert the string value to a boolean so it can be used correctly
-        if (isBooleanSetting) {
-          setOverlayParameters((prev) => ({
-            ...prev,
-            [key]: typeof value === 'boolean' ? value : value === 'true',
-          }));
-          logger.debug('Loaded boolean setting:', urlParam, key, { value });
+        } else if (typeof defaultValue === 'boolean') {
+          patch[key] = raw === 'true';
+        } else if (typeof defaultValue === 'number') {
+          patch[key] = Number(raw);
         } else {
-          setOverlayParameters((prev) => ({ ...prev, [key]: value }));
-          logger.debug('Loaded setting:', urlParam, key, { value });
+          patch[key] = raw;
         }
       }
+
+      logger.debug('Loaded settings from URL', patch);
+      update(patch as Partial<Params>);
       setImportOpen(false);
       toast.showToast('Settings loaded from the URL');
     } catch (error) {
       setLoadSettingsError(`That does not look like a full URL. Paste the whole address, starting with https://. (${(error as Error).message})`);
     }
-  };
-
-  const applyNiceDropShadowPreset = () => {
-    setDropShadowSettings(NICE_DROP_SHADOW_PRESET);
-    update({ dropShadowEnabled: true });
   };
 
   const handleTabKeyDown = (event: React.KeyboardEvent, index: number) => {
@@ -210,6 +153,216 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
     const next = TABS[(index + (event.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length];
     setActiveTab(next.id);
     document.getElementById(`settings-tab-${next.id}`)?.focus();
+  };
+
+  const toggle = (name: BooleanKey, title: string, description: string) => (
+    <SwitchRow
+      id={name}
+      title={title}
+      description={description}
+      checked={overlayParameters[name]}
+      onChange={(checked) => update({ [name]: checked } as Partial<Params>)}
+    />
+  );
+
+  // One number field, one unit menu and a reset for a setting stored as `<name>Value` and `<name>Unit`.
+  const unitSetting = (name: UnitName, id: string, label: string, units: string[], pxRange: [number, number], otherRange: [number, number]) => {
+    const valueKey = `${name}Value` as const;
+    const unitKey = `${name}Unit` as const;
+    const [min, max] = overlayParameters[unitKey] === 'px' ? pxRange : otherRange;
+    return (
+      <FormField id={id} label={label}>
+        <UnitField
+          id={id}
+          label={label}
+          value={overlayParameters[valueKey]}
+          unit={overlayParameters[unitKey]}
+          units={units}
+          min={min}
+          max={max}
+          onValueChange={(value) => update({ [valueKey]: value } as Partial<Params>)}
+          onUnitChange={(unit) => update({ [unitKey]: unit } as Partial<Params>)}
+          onReset={() => reset(valueKey, unitKey)}
+        />
+      </FormField>
+    );
+  };
+
+  const renderPane = () => {
+    switch (activeTab) {
+      case 'look':
+        return (
+          <>
+            <div className="group">
+              <h3>Colors</h3>
+              <FormField id="foreground-color" label="Text color">
+                <ColorPicker
+                  id="foreground-color"
+                  placeholder="#ffffff"
+                  value={overlayParameters.foregroundColor}
+                  onChange={(foregroundColor) => update({ foregroundColor })}
+                  setToDefault={() => reset('foregroundColor')}
+                />
+              </FormField>
+              <FormField
+                id="background-color"
+                label="Background"
+                hint="Leave this transparent for OBS. The backdrop behind the preview is only a stand-in for your scene."
+              >
+                <ColorPicker
+                  id="background-color"
+                  placeholder="#000000"
+                  value={overlayParameters.backgroundColor}
+                  onChange={(backgroundColor) => update({ backgroundColor })}
+                  setToDefault={() => reset('backgroundColor')}
+                  canSetToTransparent
+                />
+              </FormField>
+            </div>
+            <div className="group">
+              <h3>Type</h3>
+              <FormField id="font-family" label="Font family" hint="Use a font that is installed on the computer that runs OBS.">
+                <input
+                  id="font-family"
+                  type="text"
+                  placeholder="Arial"
+                  list="font-family-suggestions"
+                  value={overlayParameters.fontFamily}
+                  onChange={(e) => update({ fontFamily: e.target.value })}
+                  autoComplete="off"
+                />
+                <datalist id="font-family-suggestions">
+                  {['sans-serif', 'Arial', 'Georgia', 'Trebuchet MS', 'Courier New', 'Impact'].map((font) => (
+                    <option key={font} value={font} />
+                  ))}
+                </datalist>
+              </FormField>
+              {unitSetting('fontSize', 'font-size-value', 'Font size', ['px', 'em', 'rem'], [10, 64], [0.5, 4])}
+            </div>
+            <div className="group">
+              <h3>Message details</h3>
+              {toggle('showAvatars', 'Avatars', 'Profile picture beside each message')}
+              {toggle('showBorders', 'Subscriber borders', 'Outline messages from subscribers')}
+              {toggle('showColonAfterDisplayName', 'Colon after name', 'Alice: hello, instead of Alice hello')}
+              {toggle('showNameAlias', 'Name aliases', 'Show the Latin login next to localized names')}
+              {toggle('showGifs', 'Gifs', 'Show gifs in chat messages')}
+            </div>
+          </>
+        );
+      case 'layout':
+        return (
+          <>
+            <div className="group">
+              <h3>Size</h3>
+              <p className="hint">Match these to the width and height of the browser source in OBS for a sharp one-to-one picture.</p>
+              {unitSetting('width', 'width-value', 'Width', ['px', 'em', 'rem', 'vw'], [200, 1200], [10, 100])}
+              {unitSetting('height', 'height-value', 'Height', ['px', 'em', 'rem', 'vh'], [100, 1200], [10, 100])}
+            </div>
+            <div className="group">
+              <h3>Spacing</h3>
+              {unitSetting('chatMessagePadding', 'padding-value', 'Padding around each message', ['px', 'em', 'rem', 'vh'], [0, 32], [0, 4])}
+            </div>
+          </>
+        );
+      case 'motion':
+        return (
+          <div className="group">
+            <h3>Messages in and out</h3>
+            {toggle('animatedEntry', 'Animate entry', 'New messages slide in')}
+            {toggle('animatedExit', 'Animate exit', 'Messages fade away after a delay')}
+            {overlayParameters.animatedExit && (
+              <FormField id="secondsBeforeExit" label="Seconds before a message leaves">
+                <div className="inline">
+                  <input
+                    type="range"
+                    min={1}
+                    max={60}
+                    value={overlayParameters.secondsBeforeExit}
+                    onChange={(e) => update({ secondsBeforeExit: Number(e.target.value) })}
+                    aria-label="Seconds before exit slider"
+                  />
+                  <input
+                    id="secondsBeforeExit"
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={overlayParameters.secondsBeforeExit}
+                    onChange={(e) => update({ secondsBeforeExit: Number(e.target.value) })}
+                  />
+                </div>
+              </FormField>
+            )}
+          </div>
+        );
+      case 'effects':
+        return (
+          <>
+            <div className="group">
+              <h3>Drop shadow</h3>
+              {toggle('dropShadowEnabled', 'Shadow on message text', 'Stack layers for a soft glow or a hard edge')}
+              {overlayParameters.dropShadowEnabled && (
+                <>
+                  <div className="inline inline-wrap">
+                    <Button
+                      type="secondary"
+                      onClick={() => {
+                        setDropShadowSettings(NICE_DROP_SHADOW_PRESET);
+                        update({ dropShadowEnabled: true });
+                      }}
+                    >
+                      Use outline preset
+                    </Button>
+                    <Button type="ghost" onClick={() => setDropShadowSettings(DEFAULT_CHAT_SETTINGS_VALUES.dropShadowSettings)}>
+                      Back to default
+                    </Button>
+                  </div>
+                  <p className="hint">The outline preset replaces your current layers.</p>
+                  <TextShadowStacker onChange={setDropShadowSettings} value={dropShadowSettings} />
+                </>
+              )}
+            </div>
+            <div className="group">
+              <h3>Text stroke</h3>
+              {toggle('textStrokeEnabled', 'Stroke around letters', 'Helps text stand out on a busy scene')}
+              {overlayParameters.textStrokeEnabled && <TextStrokeEditor value={textStrokeSettings} onChange={setTextStrokeSettings} />}
+            </div>
+          </>
+        );
+      case 'filters':
+        return (
+          <>
+            <div className="group">
+              <h3>Hide chatters</h3>
+              <p className="hint">Messages from a matching username never appear. This is useful for bots.</p>
+              <FilterEditor
+                value={userFilterConfig}
+                onChange={setUserFilterConfig}
+                addLabel="Add username rule"
+                placeholder="Username"
+                emptyText="No rules. Everyone shows."
+              />
+            </div>
+            <div className="group">
+              <h3>Hide messages</h3>
+              <p className="hint">Messages with matching text never appear. For example, chat commands.</p>
+              <FilterEditor
+                value={messageFilterConfig}
+                onChange={setMessageFilterConfig}
+                addLabel="Add message rule"
+                placeholder="Text to match"
+                emptyText="No rules. Every message shows."
+              />
+              <details className="help">
+                <summary>How wildcard rules work</summary>
+                <p>
+                  <code>*</code> matches any run of characters. <code>?</code> matches exactly one character. So <code>!*</code> matches every message
+                  that starts with an exclamation mark. Rules ignore case unless you tick Case.
+                </p>
+              </details>
+            </div>
+          </>
+        );
+    }
   };
 
   return (
@@ -282,317 +435,9 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             ))}
           </div>
 
-          {activeTab === 'look' && (
-            <div className="tabpane" id="settings-pane-look" role="tabpanel" aria-labelledby="settings-tab-look">
-              <div className="group">
-                <h3>Colors</h3>
-                <div className="field">
-                  <label htmlFor="foreground-color">Text color</label>
-                  <ColorPicker
-                    id="foreground-color"
-                    placeholder="#ffffff"
-                    value={overlayParameters.foregroundColor}
-                    onChange={(foregroundColor) => update({ foregroundColor })}
-                    setToDefault={() => update({ foregroundColor: DEFAULT_CHAT_SETTINGS_VALUES.foregroundColor })}
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="background-color">Background</label>
-                  <ColorPicker
-                    id="background-color"
-                    placeholder="#000000"
-                    value={overlayParameters.backgroundColor}
-                    onChange={(backgroundColor) => update({ backgroundColor })}
-                    setToDefault={() => update({ backgroundColor: DEFAULT_CHAT_SETTINGS_VALUES.backgroundColor })}
-                    canSetToTransparent
-                  />
-                  <p className="hint">Leave this transparent for OBS. The backdrop behind the preview is only a stand-in for your scene.</p>
-                </div>
-              </div>
-              <div className="group">
-                <h3>Type</h3>
-                <div className="field">
-                  <label htmlFor="font-family">Font family</label>
-                  <input
-                    id="font-family"
-                    type="text"
-                    placeholder="Arial"
-                    list="font-family-suggestions"
-                    value={overlayParameters.fontFamily}
-                    onChange={(e) => update({ fontFamily: e.target.value })}
-                    autoComplete="off"
-                  />
-                  <datalist id="font-family-suggestions">
-                    <option value="sans-serif" />
-                    <option value="Arial" />
-                    <option value="Georgia" />
-                    <option value="Trebuchet MS" />
-                    <option value="Courier New" />
-                    <option value="Impact" />
-                  </datalist>
-                  <p className="hint">Use a font that is installed on the computer that runs OBS.</p>
-                </div>
-                <div className="field">
-                  <label htmlFor="font-size-value">Font size</label>
-                  <UnitField
-                    id="font-size-value"
-                    label="Font size"
-                    value={overlayParameters.fontSizeValue}
-                    unit={overlayParameters.fontSizeUnit}
-                    units={['px', 'em', 'rem']}
-                    min={overlayParameters.fontSizeUnit === 'px' ? 10 : 0.5}
-                    max={overlayParameters.fontSizeUnit === 'px' ? 64 : 4}
-                    onValueChange={(fontSizeValue) => update({ fontSizeValue })}
-                    onUnitChange={(fontSizeUnit) => update({ fontSizeUnit })}
-                    onReset={() =>
-                      update({
-                        fontSizeValue: DEFAULT_CHAT_SETTINGS_VALUES.fontSizeValue,
-                        fontSizeUnit: DEFAULT_CHAT_SETTINGS_VALUES.fontSizeUnit,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="group">
-                <h3>Message details</h3>
-                <SwitchRow
-                  id="showAvatars"
-                  title="Avatars"
-                  description="Profile picture beside each message"
-                  checked={overlayParameters.showAvatars}
-                  onChange={(showAvatars) => update({ showAvatars })}
-                />
-                <SwitchRow
-                  id="showBorders"
-                  title="Subscriber borders"
-                  description="Outline messages from subscribers"
-                  checked={overlayParameters.showBorders}
-                  onChange={(showBorders) => update({ showBorders })}
-                />
-                <SwitchRow
-                  id="showColonAfterDisplayName"
-                  title="Colon after name"
-                  description="Alice: hello, instead of Alice hello"
-                  checked={overlayParameters.showColonAfterDisplayName}
-                  onChange={(showColonAfterDisplayName) => update({ showColonAfterDisplayName })}
-                />
-                <SwitchRow
-                  id="showNameAlias"
-                  title="Name aliases"
-                  description="Show the Latin login next to localized names"
-                  checked={overlayParameters.showNameAlias}
-                  onChange={(showNameAlias) => update({ showNameAlias })}
-                />
-                <SwitchRow
-                  id="showGifs"
-                  title="Gifs"
-                  description="Show gifs in chat messages"
-                  checked={overlayParameters.showGifs}
-                  onChange={(showGifs) => update({ showGifs })}
-                />
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'layout' && (
-            <div className="tabpane" id="settings-pane-layout" role="tabpanel" aria-labelledby="settings-tab-layout">
-              <div className="group">
-                <h3>Size</h3>
-                <p className="hint">Match these to the width and height of the browser source in OBS for a sharp one-to-one picture.</p>
-                <div className="field">
-                  <label htmlFor="width-value">Width</label>
-                  <UnitField
-                    id="width-value"
-                    label="Width"
-                    value={overlayParameters.widthValue}
-                    unit={overlayParameters.widthUnit}
-                    units={['px', 'em', 'rem', 'vw']}
-                    min={overlayParameters.widthUnit === 'px' ? 200 : 10}
-                    max={overlayParameters.widthUnit === 'px' ? 1200 : 100}
-                    onValueChange={(widthValue) => update({ widthValue })}
-                    onUnitChange={(widthUnit) => update({ widthUnit })}
-                    onReset={() => update({ widthValue: DEFAULT_CHAT_SETTINGS_VALUES.widthValue, widthUnit: DEFAULT_CHAT_SETTINGS_VALUES.widthUnit })}
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="height-value">Height</label>
-                  <UnitField
-                    id="height-value"
-                    label="Height"
-                    value={overlayParameters.heightValue}
-                    unit={overlayParameters.heightUnit}
-                    units={['px', 'em', 'rem', 'vh']}
-                    min={overlayParameters.heightUnit === 'px' ? 100 : 10}
-                    max={overlayParameters.heightUnit === 'px' ? 1200 : 100}
-                    onValueChange={(heightValue) => update({ heightValue })}
-                    onUnitChange={(heightUnit) => update({ heightUnit })}
-                    onReset={() =>
-                      update({ heightValue: DEFAULT_CHAT_SETTINGS_VALUES.heightValue, heightUnit: DEFAULT_CHAT_SETTINGS_VALUES.heightUnit })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="group">
-                <h3>Spacing</h3>
-                <div className="field">
-                  <label htmlFor="padding-value">Padding around each message</label>
-                  <UnitField
-                    id="padding-value"
-                    label="Padding"
-                    value={overlayParameters.chatMessagePaddingValue}
-                    unit={overlayParameters.chatMessagePaddingUnit}
-                    units={['px', 'em', 'rem', 'vh']}
-                    min={0}
-                    max={overlayParameters.chatMessagePaddingUnit === 'px' ? 32 : 4}
-                    onValueChange={(chatMessagePaddingValue) => update({ chatMessagePaddingValue })}
-                    onUnitChange={(chatMessagePaddingUnit) => update({ chatMessagePaddingUnit })}
-                    onReset={() =>
-                      update({
-                        chatMessagePaddingValue: DEFAULT_CHAT_SETTINGS_VALUES.chatMessagePaddingValue,
-                        chatMessagePaddingUnit: DEFAULT_CHAT_SETTINGS_VALUES.chatMessagePaddingUnit,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'motion' && (
-            <div className="tabpane" id="settings-pane-motion" role="tabpanel" aria-labelledby="settings-tab-motion">
-              <div className="group">
-                <h3>Messages in and out</h3>
-                <SwitchRow
-                  id="animatedEntry"
-                  title="Animate entry"
-                  description="New messages slide in"
-                  checked={overlayParameters.animatedEntry}
-                  onChange={(animatedEntry) => update({ animatedEntry })}
-                />
-                <SwitchRow
-                  id="animatedExit"
-                  title="Animate exit"
-                  description="Messages fade away after a delay"
-                  checked={overlayParameters.animatedExit}
-                  onChange={(animatedExit) => update({ animatedExit })}
-                />
-                {overlayParameters.animatedExit && (
-                  <div className="field">
-                    <label htmlFor="secondsBeforeExit">Seconds before a message leaves</label>
-                    <div className="inline">
-                      <input
-                        type="range"
-                        min={1}
-                        max={60}
-                        value={overlayParameters.secondsBeforeExit}
-                        onChange={(e) => update({ secondsBeforeExit: Number(e.target.value) })}
-                        aria-label="Seconds before exit slider"
-                      />
-                      <input
-                        id="secondsBeforeExit"
-                        type="number"
-                        min={1}
-                        max={60}
-                        value={overlayParameters.secondsBeforeExit}
-                        onChange={(e) => update({ secondsBeforeExit: Number(e.target.value) })}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="group">
-                <h3>Try it</h3>
-                <p className="hint">Replay the animation in the preview with your current settings.</p>
-                <div>
-                  <Button type="secondary" onClick={() => setReplayKey((k) => k + 1)}>
-                    Replay animation
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'effects' && (
-            <div className="tabpane" id="settings-pane-effects" role="tabpanel" aria-labelledby="settings-tab-effects">
-              <div className="group">
-                <h3>Drop shadow</h3>
-                <SwitchRow
-                  id="dropShadowEnabled"
-                  title="Shadow on message text"
-                  description="Stack layers for a soft glow or a hard edge"
-                  checked={overlayParameters.dropShadowEnabled}
-                  onChange={(dropShadowEnabled) => update({ dropShadowEnabled })}
-                />
-                {overlayParameters.dropShadowEnabled && (
-                  <>
-                    <div className="inline inline-wrap">
-                      <Button type="secondary" onClick={applyNiceDropShadowPreset}>
-                        Use outline preset
-                      </Button>
-                      <Button
-                        type="ghost"
-                        onClick={() => {
-                          setDropShadowSettings(DEFAULT_CHAT_SETTINGS_VALUES.dropShadowSettings);
-                          update({ dropShadowSettings: DEFAULT_CHAT_SETTINGS_VALUES.dropShadowSettings });
-                        }}
-                      >
-                        Back to default
-                      </Button>
-                    </div>
-                    <p className="hint">The outline preset replaces your current layers.</p>
-                    <TextShadowStacker onChange={(newValue: string) => setDropShadowSettings(newValue)} value={dropShadowSettings} />
-                  </>
-                )}
-              </div>
-              <div className="group">
-                <h3>Text stroke</h3>
-                <SwitchRow
-                  id="textStrokeEnabled"
-                  title="Stroke around letters"
-                  description="Helps text stand out on a busy scene"
-                  checked={overlayParameters.textStrokeEnabled}
-                  onChange={(textStrokeEnabled) => update({ textStrokeEnabled })}
-                />
-                {overlayParameters.textStrokeEnabled && (
-                  <TextStrokeEditor value={textStrokeSettings} onChange={(v: string) => setTextStrokeSettings(v)} />
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'filters' && (
-            <div className="tabpane" id="settings-pane-filters" role="tabpanel" aria-labelledby="settings-tab-filters">
-              <div className="group">
-                <h3>Hide chatters</h3>
-                <p className="hint">Messages from a matching username never appear. This is useful for bots.</p>
-                <FilterEditor
-                  value={userFilterConfig}
-                  onChange={setUserFilterConfig}
-                  addLabel="Add username rule"
-                  placeholder="Username"
-                  emptyText="No rules. Everyone shows."
-                />
-              </div>
-              <div className="group">
-                <h3>Hide messages</h3>
-                <p className="hint">Messages with matching text never appear. For example, chat commands.</p>
-                <FilterEditor
-                  value={messageFilterConfig}
-                  onChange={setMessageFilterConfig}
-                  addLabel="Add message rule"
-                  placeholder="Text to match"
-                  emptyText="No rules. Every message shows."
-                />
-                <details className="help">
-                  <summary>How wildcard rules work</summary>
-                  <p>
-                    <code>*</code> matches any run of characters. <code>?</code> matches exactly one character. So <code>!*</code> matches every
-                    message that starts with an exclamation mark. Rules ignore case unless you tick Case.
-                  </p>
-                </details>
-              </div>
-            </div>
-          )}
+          <div className="tabpane" id={`settings-pane-${activeTab}`} role="tabpanel" aria-labelledby={`settings-tab-${activeTab}`}>
+            {renderPane()}
+          </div>
 
           <div className="applybar">
             <span className="applybar-note">
@@ -604,17 +449,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
           </div>
         </div>
 
-        <ChatPreview
-          overlayParameters={{
-            ...overlayParameters,
-            dropShadowSettings,
-            textStrokeSettings,
-            usernameFilters: encodeFiltersToUrl(userFilterConfig),
-            messageFilters: encodeFiltersToUrl(messageFilterConfig),
-          }}
-          replayKey={replayKey}
-          onReplay={() => setReplayKey((k) => k + 1)}
-        />
+        <ChatPreview overlayParameters={currentParameters} replayKey={replayKey} onReplay={() => setReplayKey((k) => k + 1)} />
       </div>
 
       <ConfirmModal

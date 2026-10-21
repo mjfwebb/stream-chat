@@ -13,14 +13,14 @@ const Wrapper = styled.div`
   padding: 8px;
   display: flex;
   flex-direction: column;
-  background: #2a2a2a;
+  background: var(--surface-2);
 
   width: 250px;
   height: 190px;
   font-size: 14px;
 
   font-family: sans-serif;
-  color: #bec6cf;
+  color: var(--muted);
 `;
 
 export interface Props {

@@ -1,10 +1,12 @@
+@import (reference) '../../styles/mixins.less';
+
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: inherit;
   font-weight: 500;
@@ -24,8 +26,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
+    .focus-ring();
   }
 
   &:disabled {
@@ -71,5 +72,19 @@
 
   &:hover {
     border-color: var(--bad);
+  }
+}
+
+.button-twitch {
+  padding: 11px 20px;
+  border-color: var(--twitch);
+  border-radius: 10px;
+  background: var(--twitch);
+  color: #fff;
+  font-size: 15px;
+
+  &:hover {
+    border-color: var(--twitch);
+    filter: brightness(1.1);
   }
 }

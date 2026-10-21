@@ -270,7 +270,7 @@ export const ChatPreview = ({
         </div>
       </div>
       <div className="chat-preview-foot">
-        <span className={`chat-preview-chip ${hiddenCount ? 'chat-preview-chip-warn' : ''}`}>
+        <span className={`pill ${hiddenCount ? 'pill-warn' : ''}`}>
           {hiddenCount} of {fakeChatMessageEvents.length} sample messages hidden by filters
         </span>
         <span>Sample chat. Real messages arrive from your channel.</span>

@@ -4,7 +4,7 @@ interface ButtonProps {
   className?: string;
   onClick?: () => void;
   children: React.ReactNode;
-  type: 'primary' | 'secondary' | 'ghost' | 'danger';
+  type: 'primary' | 'secondary' | 'ghost' | 'danger' | 'twitch';
   disabled?: boolean;
   'aria-label'?: string;
 }

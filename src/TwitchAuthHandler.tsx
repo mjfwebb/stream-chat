@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Redirect } from 'wouter';
+import { useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { persistedStore } from './store/store';
 import { logger } from './utils/logger';
 
@@ -16,7 +16,7 @@ const getTwitchAuthResponseData = () => {
 
 export const TwitchAuthHandler = () => {
   const authStateValue = persistedStore((s) => s.authStateValue);
-  const [tokenStored, setTokenStored] = useState(false);
+  const [, navigate] = useLocation();
 
   const { accessToken, state } = getTwitchAuthResponseData();
   const stateIsValid = state === authStateValue;
@@ -25,9 +25,9 @@ export const TwitchAuthHandler = () => {
   useEffect(() => {
     if (stateIsValid && accessToken) {
       persistedStore.getState().setAccessToken(accessToken);
-      setTokenStored(true);
+      navigate('/');
     }
-  }, [stateIsValid, accessToken]);
+  }, [stateIsValid, accessToken, navigate]);
 
   if (!stateIsValid) {
     logger.error('Invalid state value. Possible CSRF attack.');
@@ -38,6 +38,5 @@ export const TwitchAuthHandler = () => {
     return <span>Error: No access token found in the URL hash.</span>;
   }
 
-  // Leave the page only after the token is saved.
-  return tokenStored ? <Redirect to="/" /> : null;
+  return null;
 };
