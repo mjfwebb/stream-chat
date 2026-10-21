@@ -2,6 +2,8 @@
 
 This document describes the URL parameters you can use to customize the chat overlay in this project. These parameters can be passed as query parameters in the URL, for example `/chat?background-color=%23ffffff&font-size=20px`.
 
+To change the look with your own CSS, see [CUSTOMIZING.md](./CUSTOMIZING.md).
+
 ## Important Notes
 
 - **`access_token` is always required.** Without it, chat will not function.
@@ -74,6 +76,6 @@ This will set the background color to black, font size to 20px, and hide user av
 
 ## Colors and gradients
 
-The highlight colors (`highlight-mentions-color`, `highlight-first-color`, `highlight-points-color`) and the banner colors (`notice-color-subs`, `notice-color-gifts`, `notice-color-raids`) take one color or two. A color is six hex digits, such as `#ff8800`. Two colors separated by a comma make a gradient that blends from left to right, such as `#ff8800,#0037b0`. Any other value is ignored and the default is used. The editor builds these values for you.
+These parameters take one color or two: `highlight-mentions-color`, `highlight-first-color`, `highlight-points-color`, `notice-color-subs`, `notice-color-gifts` and `notice-color-raids`. A color is six hex digits, such as `#ff8800`. Two colors separated by a comma make a gradient that blends from left to right, such as `#ff8800,#0037b0`. The overlay ignores any other value and uses the default. The editor builds these values for you.
 
 `highlight-strength` sets how strong the color behind a highlight or banner is. At 100 the color is solid, which suits a gradient. Twitch's own style for channel point highlights always has full strength.

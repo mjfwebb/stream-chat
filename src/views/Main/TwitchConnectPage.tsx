@@ -3,7 +3,7 @@ import { Button } from '../../components/Button/Button';
 import { CopyButton } from '../../components/CopyButton/CopyButton';
 import { SourceUrl } from '../../components/SourceUrl/SourceUrl';
 import { useToast } from '../../components/Toast/useToast';
-import { DEFAULT_CHAT_SETTINGS_VALUES, TWITCH_AUTH_URL } from '../../constants';
+import { CUSTOMIZING_GUIDE_URL, DEFAULT_CHAT_SETTINGS_VALUES, TWITCH_AUTH_URL } from '../../constants';
 import { persistedStore, store } from '../../store/store';
 import { ChatPreview } from './ChatPreview/ChatPreview';
 import { ChatSettings } from './ChatSettings';
@@ -135,9 +135,16 @@ export const TwitchConnectPage = () => {
                   <dt>Height</dt>
                   <dd>{obsHeight}</dd>
                   <dt>Custom CSS</dt>
-                  <dd>leave empty</dd>
+                  <dd>optional</dd>
                 </dl>
                 <p className="hint">These come from the applied URL. If a size is in vh or vw, enter the matching pixels for your canvas in OBS.</p>
+                <p className="hint">
+                  Want to restyle something that the editor does not cover? Add your own CSS in the Custom CSS box.{' '}
+                  <a href={CUSTOMIZING_GUIDE_URL} target="_blank" rel="noreferrer">
+                    Read the customizing guide
+                  </a>
+                  .
+                </p>
               </section>
               <section className="card">
                 <h3>Watch another channel</h3>

@@ -24,8 +24,14 @@ export interface VisibilitySettings {
   onlyRoles: readonly Role[];
 }
 
-const hasRole = (message: ChannelChatMessageEvent, roles: readonly Role[]): boolean =>
-  roles.some((role) => message.badges.some((badge) => ROLE_BADGE_SETS[role].includes(badge.set_id)));
+/** The roles that a message has, from its badges, in a fixed order. */
+export const rolesOf = (message: ChannelChatMessageEvent): Role[] =>
+  ROLES.filter((role) => message.badges.some((badge) => ROLE_BADGE_SETS[role].includes(badge.set_id)));
+
+const hasRole = (message: ChannelChatMessageEvent, roles: readonly Role[]): boolean => {
+  const own = rolesOf(message);
+  return roles.some((role) => own.includes(role));
+};
 
 /**
  * Decides whether the overlay shows a message. The filter regexes match messages that are allowed,
