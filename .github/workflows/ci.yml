@@ -16,7 +16,7 @@ jobs:
     needs: [lint, typecheck]
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - uses: ./.github/workflows/composites/reusable-install/
 
@@ -27,7 +27,7 @@ jobs:
     name: 🧹 Lint & Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: ./.github/workflows/composites/reusable-install/
       - name: Linting
         run: pnpm lint
@@ -38,7 +38,7 @@ jobs:
     name: 🔍 Typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: ./.github/workflows/composites/reusable-install/
       - name: Type checking
         run: pnpm typecheck
