@@ -44,8 +44,8 @@ export const useChatSearchParams = () => {
   const highlightFirstMessages = searchParams.get(params.highlightFirstMessages) === 'true' ? true : defaults.highlightFirstMessages;
   const highlightColor = searchParams.get(params.highlightColor) || defaults.highlightColor;
 
-  // Controls whether a reply shows a line about the message it answers. Defaults to true.
-  const showReplies = searchParams.get(params.showReplies) === 'false' ? false : defaults.showReplies;
+  // Controls whether a reply shows a line about the message it answers. Defaults to false.
+  const showReplies = searchParams.get(params.showReplies) === 'true' ? true : defaults.showReplies;
 
   // Only messages from these roles show (comma separated: subscriber, vip, moderator, broadcaster). Empty shows everyone.
   const onlyRoles = parseRoles(searchParams.get(params.onlyRoles));

@@ -45,7 +45,7 @@ This document describes the URL parameters you can use to customize the chat ove
 | `highlight-first-messages`      | Highlight a chatter's first message in the channel             | `true`              | `false`                 |
 | `highlight-color`               | Color for mentions and first messages                          | `#ff8800`           | `#a970ff`               |
 | `highlight-rules`               | Rules that color matching messages (set in the editor)         |                     |                         |
-| `show-replies`                  | Show which message a reply answers, above the reply            | `false`             | `true`                  |
+| `show-replies`                  | Show which message a reply answers, above the reply            | `true`              | `false`                 |
 | `only-roles`                    | Show only these roles, comma separated                         | `moderator,vip`     | all roles               |
 | `show-gifs`                     | Show/hide gifs in chat messages                                | `false`             | `true`                  |
 | `text-stroke-enabled`           | Enable/disable text stroke                                     | `false`             | `false`                 |

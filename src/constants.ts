@@ -68,7 +68,7 @@ export const DEFAULT_CHAT_SETTINGS_VALUES = {
   highlightFirstMessages: false,
   highlightColor: '#a970ff',
   highlightRules: '',
-  showReplies: true,
+  showReplies: false,
   onlyRoles: '',
   usernameFilters: '',
   messageFilters: '',

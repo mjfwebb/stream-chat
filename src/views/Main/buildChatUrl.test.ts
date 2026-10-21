@@ -177,10 +177,10 @@ describe('buildUpdatedChatUrl - replies and roles', () => {
     expect(result.searchParams.get('only-roles')).toBeNull();
   });
 
-  it('writes a switched-off reply line and a chosen role list', () => {
-    const params = { ...DEFAULT_CHAT_SETTINGS_VALUES, showReplies: false, onlyRoles: 'vip,moderator' };
+  it('writes a switched-on reply line and a chosen role list', () => {
+    const params = { ...DEFAULT_CHAT_SETTINGS_VALUES, showReplies: true, onlyRoles: 'vip,moderator' };
     const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
-    expect(result.searchParams.get('show-replies')).toBe('false');
+    expect(result.searchParams.get('show-replies')).toBe('true');
     expect(result.searchParams.get('only-roles')).toBe('vip,moderator');
   });
 });
