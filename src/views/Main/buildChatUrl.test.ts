@@ -89,3 +89,25 @@ describe('buildUpdatedChatUrl - non-multipart settings', () => {
     expect(result.searchParams.get('background-color')).toBeNull();
   });
 });
+
+describe('buildUpdatedChatUrl - emote services and message limit', () => {
+  it('omits the emote switches and the limit at their defaults', () => {
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, { ...DEFAULT_CHAT_SETTINGS_VALUES }));
+    expect(result.searchParams.get('7tv-emotes')).toBeNull();
+    expect(result.searchParams.get('bttv-emotes')).toBeNull();
+    expect(result.searchParams.get('ffz-emotes')).toBeNull();
+    expect(result.searchParams.get('max-messages')).toBeNull();
+  });
+
+  it('writes a switched-off emote service', () => {
+    const params = { ...DEFAULT_CHAT_SETTINGS_VALUES, sevenTVEmotes: false };
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
+    expect(result.searchParams.get('7tv-emotes')).toBe('false');
+  });
+
+  it('writes a changed message limit', () => {
+    const params = { ...DEFAULT_CHAT_SETTINGS_VALUES, maxMessages: 50 };
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
+    expect(result.searchParams.get('max-messages')).toBe('50');
+  });
+});

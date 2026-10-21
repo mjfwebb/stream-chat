@@ -30,6 +30,7 @@ This document describes the URL parameters you can use to customize the chat ove
 | `show-borders`                  | Show/hide borders around chat messages                         | `false`             | `true`                  |
 | `show-colon-after-display-name` | Show colon after display name                                  | `false`             | `false`                 |
 | `show-name-alias`               | Show/hide name alias for users                                 | `false`             | `true`                  |
+| `max-messages`                  | Number of recent messages to keep (older ones are dropped)     | `50`                | `100`                   |
 | `show-gifs`                     | Show/hide gifs in chat messages                                | `false`             | `true`                  |
 | `text-stroke-enabled`           | Enable/disable text stroke                                     | `false`             | `false`                 |
 | `text-stroke`                   | CSS text stroke settings                                       | `1px #aeff00`       | `1px black`             |

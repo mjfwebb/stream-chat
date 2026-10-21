@@ -4,7 +4,7 @@ import './App.css';
 import { fetchBadges } from './handlers/twitch/helix/fetchBadges';
 import { fetchCheers } from './handlers/twitch/helix/fetchCheers';
 import { useMount } from './hooks/useMount';
-import { persistedStore } from './store/store';
+import { persistedStore, store } from './store/store';
 import { TwitchAuthHandler } from './TwitchAuthHandler';
 import { TwitchBroadcasterIdLoader } from './TwitchBroadcasterIdLoader';
 import { Chat } from './views/Chat/Chat';
@@ -20,6 +20,7 @@ function App() {
   const sevenTVEnabled = searchParams.get('7tv-emotes');
   const betterTTVEnabled = searchParams.get('bttv-emotes');
   const frankerFaceZEnabled = searchParams.get('ffz-emotes');
+  const maxMessages = Number(searchParams.get('max-messages'));
 
   useMount(() => {
     void fetchBadges('global');
@@ -49,8 +50,13 @@ function App() {
       state.setFrankerFaceZEnabled(frankerFaceZEnabled === 'true');
     }
 
+    // Keep only the newest messages so a long stream does not use more and more memory
+    if (Number.isInteger(maxMessages) && maxMessages > 0) {
+      store.getState().setMaxChatMessages(maxMessages);
+    }
+
     setParamsApplied(true);
-  }, [tokenFromParams, channelFromParams, sevenTVEnabled, betterTTVEnabled, frankerFaceZEnabled]);
+  }, [tokenFromParams, channelFromParams, sevenTVEnabled, betterTTVEnabled, frankerFaceZEnabled, maxMessages]);
 
   // The views read the store when they mount, so wait until the parameters are in it.
   if (!paramsApplied) {
