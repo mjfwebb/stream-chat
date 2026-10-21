@@ -303,8 +303,8 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
         return (
           <>
             <div className="group">
-              <h3>Colors</h3>
-              <FormField id="foreground-color" label="Text color">
+              <h3>Colours</h3>
+              <FormField id="foreground-color" label="Text colour">
                 <ColorPicker
                   id="foreground-color"
                   placeholder="#ffffff"
@@ -353,7 +353,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               {toggle('showAvatars', 'Avatars', 'Profile picture beside each message')}
               {toggle('showBorders', 'Subscriber borders', 'Outline messages from subscribers')}
               {toggle('showColonAfterDisplayName', 'Colon after name', 'Alice: hello, instead of Alice hello')}
-              {toggle('showNameAlias', 'Name aliases', 'Show the Latin login next to localized names')}
+              {toggle('showNameAlias', 'Name aliases', 'Show the Latin login next to localised names')}
               {toggle('showGifs', 'Gifs', 'Show gifs in chat messages')}
               {toggle('showReplies', 'Reply context', 'Show which message a reply answers, above the reply')}
             </div>
@@ -368,11 +368,11 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               <h3>Message style</h3>
               {selectSetting(
                 'usernameColor',
-                'Username color',
+                'Username colour',
                 [
-                  { value: 'corrected', label: 'Twitch color, adjusted for contrast' },
-                  { value: 'twitch', label: 'Twitch color' },
-                  { value: 'text', label: 'Same as text color' },
+                  { value: 'corrected', label: 'Twitch colour, adjusted for contrast' },
+                  { value: 'twitch', label: 'Twitch colour' },
+                  { value: 'text', label: 'Same as text colour' },
                 ],
                 'Adjusting for contrast keeps dark names readable on a dark background.',
               )}
@@ -479,20 +479,20 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
             <div className="group">
               <h3>Event banners</h3>
               <p className="hint">
-                Show channel events as colored banners in the chat. The overlay asks Twitch for these events only when at least one is on.
+                Show channel events as coloured banners in the chat. The overlay asks Twitch for these events only when at least one is on.
               </p>
               {noticeSwitch('subs', 'Subs and resubs', 'Includes the message that comes with a resub')}
               {noticeSwitch('gifts', 'Gifted subs', 'A gift of many subs is one banner')}
               {noticeSwitch('raids', 'Raids', 'When another channel raids you')}
-              {noticeSwitch('announcements', 'Announcements', 'Moderator announcements, in the announcement color')}
+              {noticeSwitch('announcements', 'Announcements', 'Moderator announcements, in the announcement colour')}
             </div>
             <div className="group">
               <h3>Banner style</h3>
               <p className="hint">
-                Banners also follow your font, text color, shadow, padding and corner radius. Announcements keep the color that the moderator chose.
+                Banners also follow your font, text colour, shadow, padding and corner radius. Announcements keep the colour that the moderator chose.
               </p>
               {toggle('showNoticeLabels', 'Label', 'Start each banner with a word such as SUB or RAID')}
-              <FormField id="notice-color-subs" label="Sub color">
+              <FormField id="notice-color-subs" label="Sub colour">
                 <ColorValuePicker
                   id="notice-color-subs"
                   placeholder="#a970ff"
@@ -501,7 +501,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
                   setToDefault={() => reset('noticeColorSubs')}
                 />
               </FormField>
-              <FormField id="notice-color-gifts" label="Gifted sub color">
+              <FormField id="notice-color-gifts" label="Gifted sub colour">
                 <ColorValuePicker
                   id="notice-color-gifts"
                   placeholder="#ff6ba6"
@@ -510,7 +510,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
                   setToDefault={() => reset('noticeColorGifts')}
                 />
               </FormField>
-              <FormField id="notice-color-raids" label="Raid color">
+              <FormField id="notice-color-raids" label="Raid colour">
                 <ColorValuePicker
                   id="notice-color-raids"
                   placeholder="#ff8800"
@@ -525,7 +525,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               {/* The names are the sample chatters in ChatPreview. Keep them in step. */}
               {toggle('highlightPoints', 'Channel point highlights', 'Messages sent with Highlight My Message. Preview: Bob.')}
               {overlayParameters.highlightPoints && (
-                <FormField id="highlight-points-color" label="Channel point color">
+                <FormField id="highlight-points-color" label="Channel point colour">
                   <ColorValuePicker
                     id="highlight-points-color"
                     placeholder="#a970ff"
@@ -538,7 +538,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               )}
               {toggle('highlightMentions', 'Mentions of your channel', 'A message that mentions your channel name. Preview: Diana.')}
               {overlayParameters.highlightMentions && (
-                <FormField id="highlight-mentions-color" label="Mention color">
+                <FormField id="highlight-mentions-color" label="Mention colour">
                   <ColorValuePicker
                     id="highlight-mentions-color"
                     placeholder="#a970ff"
@@ -550,7 +550,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               )}
               {toggle('highlightFirstMessages', 'First messages', 'A chatter’s first message in your channel. Preview: Frank.')}
               {overlayParameters.highlightFirstMessages && (
-                <FormField id="highlight-first-color" label="First message color">
+                <FormField id="highlight-first-color" label="First message colour">
                   <ColorValuePicker
                     id="highlight-first-color"
                     placeholder="#00c853"
@@ -562,23 +562,23 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
               )}
               {rangeSetting(
                 'highlightStrength',
-                'Color strength (%)',
+                'Colour strength (%)',
                 5,
                 100,
-                'How strong the color behind a highlight, a rule or a banner is. Raise it to make a gradient stand out. Twitch style is always full strength.',
+                'How strong the colour behind a highlight, a rule or a banner is. Raise it to make a gradient stand out. Twitch style is always full strength.',
               )}
             </div>
             <div className="group">
               <h3>Highlight rules</h3>
               <p className="hint">
-                A message that matches a rule gets that rule’s color. The first matching rule wins. To try it in the preview, match the text catJAM.
+                A message that matches a rule gets that rule’s colour. The first matching rule wins. To try it in the preview, match the text catJAM.
               </p>
               <FilterEditor<HighlightRule>
                 value={highlightConfig}
                 onChange={setHighlightConfig}
                 addLabel="Add highlight rule"
                 placeholder="Text to match"
-                emptyText="No rules. Add one to color messages that contain a word."
+                emptyText="No rules. Add one to colour messages that contain a word."
                 createRule={() => ({
                   matchType: 'contains',
                   pattern: '',
@@ -586,7 +586,7 @@ export const ChatSettings = ({ chatUrl, setChatUrl }: { chatUrl: string; setChat
                   color: DEFAULT_CHAT_SETTINGS_VALUES.highlightMentionsColor,
                 })}
                 extraControl={(rule, updateRule) => (
-                  <ColorValueCompact value={rule.color} onChange={(color) => updateRule({ color })} label="Highlight color for this rule" />
+                  <ColorValueCompact value={rule.color} onChange={(color) => updateRule({ color })} label="Highlight colour for this rule" />
                 )}
               />
             </div>

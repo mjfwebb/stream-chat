@@ -70,7 +70,7 @@ export const ColorField = ({ value, onChange }: Props) => {
 
   return (
     <Wrapper>
-      <Label>Color</Label>
+      <Label>Colour</Label>
       <TextShadowInput value={value} onChange={updatedInput} />
       <input value={color} onChange={updated} type={'color'} />
       <Slider className={'text-shadow-picker__slider'} type={'range'} value={alpha} onChange={updatedAlpha} max={255} />
