@@ -227,3 +227,23 @@ describe('buildUpdatedChatUrl - banner style', () => {
     expect(result.searchParams.get('notice-labels')).toBe('false');
   });
 });
+
+describe('buildUpdatedChatUrl - gradients and strength', () => {
+  it('omits the strength at its default', () => {
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, { ...DEFAULT_CHAT_SETTINGS_VALUES }));
+    expect(result.searchParams.get('highlight-strength')).toBeNull();
+  });
+
+  it('writes a gradient as two colors separated by a comma, and a changed strength', () => {
+    const params = {
+      ...DEFAULT_CHAT_SETTINGS_VALUES,
+      highlightMentionsColor: '#ff8800,#0037b0',
+      noticeColorRaids: '#ff0066,#ffcc00',
+      highlightStrength: 60,
+    };
+    const result = new URL(buildUpdatedChatUrl(BASE_URL, params));
+    expect(result.searchParams.get('highlight-mentions-color')).toBe('#ff8800,#0037b0');
+    expect(result.searchParams.get('notice-color-raids')).toBe('#ff0066,#ffcc00');
+    expect(result.searchParams.get('highlight-strength')).toBe('60');
+  });
+});

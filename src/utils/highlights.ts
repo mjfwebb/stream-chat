@@ -1,4 +1,6 @@
 import type { ChannelChatMessageEvent } from '../types/twitchEvents';
+import { DEFAULT_CHAT_SETTINGS_VALUES } from '../constants';
+import { isColorValue } from './colorValue';
 import { buildFilterRegex, type UserFilterConfig, type UserFilterRule } from './filters';
 
 // A highlight rule matches message text like a filter rule does, and also says which color to use.
@@ -30,7 +32,9 @@ export interface HighlightSettings {
 export const compileHighlightRules = (config: HighlightConfig): CompiledHighlightRule[] =>
   config.rules.flatMap((rule) => {
     const notMatching = buildFilterRegex({ rules: [rule] });
-    return notMatching ? [{ notMatching, color: rule.color }] : [];
+    // A rule comes from JSON in the URL, so its color may not be one the overlay can use
+    const color = isColorValue(rule.color) ? rule.color : DEFAULT_CHAT_SETTINGS_VALUES.highlightMentionsColor;
+    return notMatching ? [{ notMatching, color }] : [];
   });
 
 const mentionsChannelOwner = (message: ChannelChatMessageEvent): boolean => {

@@ -45,6 +45,17 @@ describe('compileHighlightRules', () => {
     expect(compileHighlightRules(config)).toHaveLength(2);
   });
 
+  it('keeps a gradient color and replaces a color that is not valid', () => {
+    const rules = compileHighlightRules({
+      rules: [
+        { matchType: 'contains', pattern: 'one', caseSensitive: false, color: '#ff0000,#0000ff' },
+        { matchType: 'contains', pattern: 'two', caseSensitive: false, color: 'not a color' },
+      ],
+    });
+    expect(rules[0].color).toBe('#ff0000,#0000ff');
+    expect(rules[1].color).toBe('#a970ff');
+  });
+
   it('matches like a filter rule does', () => {
     const [giveaway, shoutout] = compileHighlightRules(config);
     expect(giveaway.notMatching.test('Join the GIVEAWAY now')).toBe(false);

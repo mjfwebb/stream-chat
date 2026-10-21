@@ -232,6 +232,7 @@ export const ChatPreview = ({
     highlightMentionsColor: overlayParameters.highlightMentionsColor,
     highlightFirstColor: overlayParameters.highlightFirstColor,
     highlightPointsColor: overlayParameters.highlightPointsColor,
+    highlightStrength: overlayParameters.highlightStrength,
     highlightRules: compileHighlightRules(decodeFiltersFromUrl<HighlightRule>(overlayParameters.highlightRules)),
     dropShadowEnabled: overlayParameters.dropShadowEnabled,
     dropShadowSettings: overlayParameters.dropShadowSettings,

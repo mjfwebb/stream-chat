@@ -1,10 +1,11 @@
 import classNames from 'classnames';
+import type { CSSProperties } from 'react';
 import type { UsernameColorMode } from '../../constants';
 import { ChannelChatMessageEvent } from '../../types/twitchEvents';
+import { colorValueBackground, firstColor, sideColors } from '../../utils/colorValue';
 import { getHighlight, type Highlight, type HighlightSettings } from '../../utils/highlights';
 import { ChatImageRenderer } from './ChatImageRenderer';
 import { contrastCorrected } from './contrastCorrected';
-import { withOpacity } from './overlayStyle';
 import { UserBadges } from './UserBadges';
 
 interface ChatEntryProps extends HighlightSettings {
@@ -21,6 +22,8 @@ interface ChatEntryProps extends HighlightSettings {
   showGifs: boolean;
   usernameColor: UsernameColorMode;
   showReplies: boolean;
+  // How strong the color behind a highlight or a banner is, from 0 to 100
+  highlightStrength: number;
   noticeColors: Record<'subs' | 'gifts' | 'raids', string>;
   showNoticeLabels: boolean;
   chatMessagePadding: string;
@@ -76,6 +79,7 @@ export const ChatEntry = ({
   highlightMentionsColor,
   highlightFirstColor,
   highlightPointsColor,
+  highlightStrength,
   highlightRules,
 }: ChatEntryProps) => {
   const gigantified = chatMessage.message_type === 'power_ups_gigantified_emote';
@@ -116,14 +120,16 @@ export const ChatEntry = ({
           showBorders && chatMessage.badges.find((badge) => badge.set_id === 'subscriber') && 'chat-message-body-subscriber',
           gigantified && 'chat-message-body-gigantified',
           highlight?.type === 'spotlight' && 'chat-message-body-spotlighted',
+          highlight?.type === 'color' && 'chat-message-body-highlighted',
         )}
         style={{
+          // The color goes on a layer behind the text (see Chat.less), so it can be a gradient and keeps the other backgrounds
           ...(highlight?.type === 'color'
-            ? {
-                borderLeftColor: highlight.color,
-                borderRightColor: highlight.color,
-                backgroundColor: withOpacity(highlight.color, 25),
-              }
+            ? ({
+                borderLeftColor: sideColors(highlight.color).left,
+                borderRightColor: sideColors(highlight.color).right,
+                '--highlight-background': colorValueBackground(highlight.color, highlightStrength),
+              } as CSSProperties)
             : {}),
           ...(dropShadowEnabled
             ? {
@@ -141,7 +147,7 @@ export const ChatEntry = ({
         <span>
           {notice ? (
             showNoticeLabels && (
-              <span className="chat-message-notice-label" style={{ color: noticeColor }}>
+              <span className="chat-message-notice-label" style={{ color: noticeColor && firstColor(noticeColor) }}>
                 {notice.label}
               </span>
             )

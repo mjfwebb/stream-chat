@@ -43,17 +43,18 @@ This document describes the URL parameters you can use to customize the chat ove
 | `highlight-points`              | Style channel point highlighted messages like Twitch does           | `false`             | `true`                  |
 | `highlight-mentions`            | Highlight messages that mention the channel                         | `true`              | `false`                 |
 | `highlight-first-messages`      | Highlight a chatter's first message in the channel                  | `true`              | `false`                 |
-| `highlight-mentions-color`      | Color for mentions of the channel (6-digit hex)                     | `#ff8800`           | `#a970ff`               |
-| `highlight-first-color`         | Color for first messages (6-digit hex)                              | `#00a3ff`           | `#00c853`               |
-| `highlight-points-color`        | Color for channel point highlights (6-digit hex)                    | `#ff0066`           | Twitch's purple style   |
+| `highlight-mentions-color`      | Color for mentions of the channel (color or gradient)               | `#ff8800`           | `#a970ff`               |
+| `highlight-first-color`         | Color for first messages (color or gradient)                        | `#00a3ff,#00c853`   | `#00c853`               |
+| `highlight-points-color`        | Color for channel point highlights (color or gradient)              | `#ff0066,#0037b0`   | Twitch's purple style   |
+| `highlight-strength`            | How strong the color behind a highlight or banner is, 0 to 100      | `60`                | `25`                    |
 | `highlight-color`               | Older parameter: the color for both mentions and first messages     | `#ff8800`           |                         |
 | `highlight-rules`               | Rules that color matching messages (set in the editor)              |                     |                         |
 | `show-replies`                  | Show which message a reply answers, above the reply                 | `true`              | `false`                 |
 | `only-roles`                    | Show only these roles, comma separated                              | `moderator,vip`     | all roles               |
 | `show-notices`                  | Channel events to show as banners: `subs,gifts,raids,announcements` | `subs,raids`        | none                    |
-| `notice-color-subs`             | Banner color for subs and resubs (6-digit hex)                      | `#00a3ff`           | `#a970ff`               |
-| `notice-color-gifts`            | Banner color for gifted subs (6-digit hex)                          | `#00c853`           | `#ff6ba6`               |
-| `notice-color-raids`            | Banner color for raids (6-digit hex)                                | `#ff0066`           | `#ff8800`               |
+| `notice-color-subs`             | Banner color for subs and resubs (color or gradient)                | `#00a3ff`           | `#a970ff`               |
+| `notice-color-gifts`            | Banner color for gifted subs (color or gradient)                    | `#00c853`           | `#ff6ba6`               |
+| `notice-color-raids`            | Banner color for raids (color or gradient)                          | `#ff0066`           | `#ff8800`               |
 | `notice-labels`                 | Start each banner with a label such as SUB or RAID                  | `false`             | `true`                  |
 | `show-gifs`                     | Show/hide gifs in chat messages                                     | `false`             | `true`                  |
 | `text-stroke-enabled`           | Enable/disable text stroke                                          | `false`             | `false`                 |
@@ -70,3 +71,9 @@ https://chat.nice.gg/chat?background-color=%23000000&font-size=20px&show-avatars
 ```
 
 This will set the background color to black, font size to 20px, and hide user avatars.
+
+## Colors and gradients
+
+The highlight colors (`highlight-mentions-color`, `highlight-first-color`, `highlight-points-color`) and the banner colors (`notice-color-subs`, `notice-color-gifts`, `notice-color-raids`) take one color or two. A color is six hex digits, such as `#ff8800`. Two colors separated by a comma make a gradient that blends from left to right, such as `#ff8800,#0037b0`. Any other value is ignored and the default is used. The editor builds these values for you.
+
+`highlight-strength` sets how strong the color behind a highlight or banner is. At 100 the color is solid, which suits a gradient. Twitch's own style for channel point highlights always has full strength.
