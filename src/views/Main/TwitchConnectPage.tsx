@@ -1,36 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '../../components/Button/Button';
+import { CopyButton } from '../../components/CopyButton/CopyButton';
+import { SourceUrl } from '../../components/SourceUrl/SourceUrl';
 import { useToast } from '../../components/Toast/useToast';
-import { TWITCH_AUTH_URL } from '../../constants';
+import { DEFAULT_CHAT_SETTINGS_VALUES, TWITCH_AUTH_URL } from '../../constants';
 import { persistedStore, store } from '../../store/store';
+import { ChatPreview } from './ChatPreview/ChatPreview';
 import { ChatSettings } from './ChatSettings';
 
 import './TwitchConnectPage.less';
 
-const CopyToClipboardButton = ({ text }: { text: string }) => {
-  const [success, setSuccess] = useState(false);
+type View = 'editor' | 'obs';
 
-  useEffect(() => {
-    const timer = setTimeout(() => setSuccess(false), 2000);
-    return () => clearTimeout(timer);
-  }, [success]);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text).then(
-      () => {
-        setSuccess(true);
-      },
-      () => {
-        setSuccess(false);
-      },
-    );
-  };
-  return (
-    <Button onClick={handleCopy} type="secondary">
-      {success ? 'Copied!' : 'Copy URL'}
-    </Button>
-  );
-};
+const VIEWS: { id: View; label: string }[] = [
+  { id: 'editor', label: 'Overlay editor' },
+  { id: 'obs', label: 'OBS setup' },
+];
 
 export const TwitchConnectPage = () => {
   const accessToken = persistedStore((s) => s.accessToken);
@@ -40,6 +25,7 @@ export const TwitchConnectPage = () => {
   const baseOverlayURL = `${import.meta.env.VITE_BASE_URI}/chat?access_token=${accessToken}`;
   const [chatUrl, setChatUrl] = useState(baseOverlayURL);
   const [channelName, setChannelName] = useState('');
+  const [view, setView] = useState<View>('editor');
   const toast = useToast();
 
   const handleLogin = () => {
@@ -69,55 +55,144 @@ export const TwitchConnectPage = () => {
   };
 
   if (accessToken && userLogin && userId) {
+    // OBS uses the applied URL, so read the browser source size from it.
+    const appliedParams = new URL(chatUrl).searchParams;
+    const obsWidth = appliedParams.get('width') ?? `${DEFAULT_CHAT_SETTINGS_VALUES.widthValue}${DEFAULT_CHAT_SETTINGS_VALUES.widthUnit}`;
+    const obsHeight = appliedParams.get('height') ?? `${DEFAULT_CHAT_SETTINGS_VALUES.heightValue}${DEFAULT_CHAT_SETTINGS_VALUES.heightUnit}`;
+
     return (
       <div className="twitch-connect-page">
-        <div className="twitch-connect-page-info-box">
-          <span>
-            You are <strong>now connected</strong> to Twitch as{' '}
-            <strong>
-              {userLogin} ({userId})
-            </strong>
-          </span>
-          <Button type="ghost" onClick={handleLogout}>
-            Disconnect
-          </Button>
-        </div>
-        <section className="add-to-obs">
-          <h2>Add as a browser source in OBS</h2>
-          <ol>
-            <li>Open OBS and go to the Sources panel.</li>
-            <li>Click the "+" button to add a new source.</li>
-            <li>Select "Browser" from the list of source types.</li>
-            <li>Create a new browser source</li>
-            <li>Paste the following URL into the URL field:</li>
-          </ol>
-          <div className="twitch-connect-page-url-container">
-            <code>{chatUrl}</code> <CopyToClipboardButton text={chatUrl} />{' '}
-            <a href={chatUrl} target="_blank">
-              Open in new tab
-            </a>
-          </div>
-          <div className="twitch-connect-page-change-channel-wrapper">
-            <p>Optionally set a channel so you can watch someone else's Twitch chat:</p>
-            <div className="twitch-connect-page-change-channel">
-              <input type="text" placeholder="Enter channel name" onChange={(e) => setChannelName(e.target.value)} />
-              <Button type="secondary" onClick={handleChannelNameChange}>
-                Set channel name
+        <header className="studio-header">
+          <div className="studio-wrap studio-header-inner">
+            <div className="studio-brand">
+              <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+                <rect x="1" y="2" width="24" height="17" rx="5" fill="currentColor" />
+                <path d="M7 19l-1 5 6-5z" fill="currentColor" />
+                <rect x="6" y="7" width="9" height="2.2" rx="1.1" fill="var(--surface)" />
+                <rect x="6" y="11.5" width="14" height="2.2" rx="1.1" fill="var(--surface)" opacity=".7" />
+              </svg>
+              Stream Chat
+            </div>
+            <nav className="studio-nav" aria-label="Sections">
+              {VIEWS.map((v) => (
+                <button key={v.id} type="button" aria-current={view === v.id} onClick={() => setView(v.id)}>
+                  {v.label}
+                </button>
+              ))}
+            </nav>
+            <span className="studio-spacer" />
+            <div className="studio-who">
+              <span className="studio-who-dot" aria-hidden="true" />
+              {userLogin} <small>id {userId}</small>
+              <Button type="ghost" onClick={handleLogout}>
+                Disconnect
               </Button>
             </div>
           </div>
-        </section>
-        <ChatSettings chatUrl={chatUrl} setChatUrl={setChatUrl} />
+        </header>
+
+        {/* Kept mounted so unsaved editor changes survive a trip to the OBS tab. */}
+        <div hidden={view !== 'editor'}>
+          <ChatSettings chatUrl={chatUrl} setChatUrl={setChatUrl} />
+        </div>
+
+        {view === 'obs' && (
+          <div className="studio-wrap obs">
+            <section className="card">
+              <h2>Add the overlay to OBS</h2>
+              <ol className="steps">
+                <li>
+                  <b>Open the Sources panel</b>
+                  <p>In OBS, it sits under your scene list.</p>
+                </li>
+                <li>
+                  <b>Press + and choose Browser</b>
+                  <p>Name the source Stream Chat.</p>
+                </li>
+                <li>
+                  <b>Match the size</b>
+                  <p>Use the width and height shown on the right.</p>
+                </li>
+                <li>
+                  <b>Paste this URL</b>
+                  <p>Keep it private. It contains your access token.</p>
+                  <div className="obs-url">
+                    <SourceUrl url={chatUrl} />
+                    <CopyButton text={chatUrl} type="primary" />
+                  </div>
+                </li>
+              </ol>
+            </section>
+            <div className="obs-side">
+              <section className="card">
+                <h3>Values for OBS</h3>
+                <dl className="kv">
+                  <dt>Width</dt>
+                  <dd>{obsWidth}</dd>
+                  <dt>Height</dt>
+                  <dd>{obsHeight}</dd>
+                  <dt>Custom CSS</dt>
+                  <dd>leave empty</dd>
+                </dl>
+                <p className="hint">These come from the applied URL. If a size is in vh or vw, enter the matching pixels for your canvas in OBS.</p>
+              </section>
+              <section className="card">
+                <h3>Watch another channel</h3>
+                <p className="hint">
+                  By default the overlay shows your own chat. Enter a channel name to show a different one. Names are case sensitive.
+                </p>
+                <div className="inline">
+                  <input
+                    type="text"
+                    placeholder="Channel name"
+                    value={channelName}
+                    onChange={(e) => setChannelName(e.target.value)}
+                    autoComplete="off"
+                    aria-label="Channel name"
+                  />
+                  <Button type="secondary" onClick={handleChannelNameChange}>
+                    Set channel
+                  </Button>
+                </div>
+                <span className="pill pill-good">Showing {appliedParams.get('channel') ?? userLogin}</span>
+              </section>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="twitch-connect-page-logged-out">
-      <p>Connect your Twitch account to start using the chat overlay</p>
-      <Button type="primary" onClick={handleLogin}>
-        Connect with Twitch
-      </Button>
+    <div className="studio-wrap twitch-connect-page-logged-out">
+      <div className="logged-out-copy">
+        <h1>Your chat, on stream, looking exactly how you want.</h1>
+        <p className="lead">
+          Design an overlay with a live preview, then paste one URL into OBS. Emotes from Twitch, 7TV, BetterTTV and FrankerFaceZ show up as they do
+          in chat.
+        </p>
+        <button type="button" className="twitch-button" onClick={handleLogin}>
+          Connect with Twitch
+        </button>
+        <div className="permissions">
+          <b>What you allow</b>
+          <ul>
+            <li>
+              <span className="permissions-yes" aria-hidden="true">
+                ✓
+              </span>{' '}
+              Read chat in channels you open (<code>user:read:chat</code>)
+            </li>
+            <li>
+              <span className="permissions-no" aria-hidden="true">
+                ✕
+              </span>{' '}
+              Post messages, moderate or change your channel
+            </li>
+          </ul>
+        </div>
+      </div>
+      <ChatPreview overlayParameters={DEFAULT_CHAT_SETTINGS_VALUES} />
     </div>
   );
 };

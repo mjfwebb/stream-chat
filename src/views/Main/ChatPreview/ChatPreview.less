@@ -1,47 +1,119 @@
-.chat-preview {
-  border: 1px solid #433b5d;
-  border-radius: 5px;
-  padding: 1rem;
-  margin-top: 1rem;
-  background: #1e1e1e;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  overflow-y: auto;
-  display: flex;
-  justify-content: center;
-  overflow: auto;
-  position: relative;
-}
-
-/* Keep the preview visible while scrolling settings */
 .chat-preview-container {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  /* Give it a solid background so content underneath doesn't show through when stuck */
-  background: #232326;
-  /* Match the main container's padding spacing visually when stuck */
-  padding-top: 0.5rem;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
 }
 
-/* Constrain preview height so it doesn't exceed the viewport and can scroll internally */
-.chat-preview-container .chat-preview {
-  max-height: 50vh;
+.chat-preview-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  h2 {
+    margin: 0 auto 0 0;
+    font-size: 16px;
+    color: var(--fg);
+  }
 }
 
-.chat-preview-change-bg-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background-color: #635dc2;
-  border: 1px solid #9b87dc;
-  border-radius: 5px;
-  padding: 0.25rem 0.5rem;
+.chat-preview-swatches {
+  display: flex;
+  gap: 6px;
+}
+
+.chat-preview-swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--line);
   cursor: pointer;
-  color: #ffffff;
-  font-size: 0.875rem;
-  transition: all 150ms;
 
-  &:hover {
-    background-color: #7a6bc2;
+  &[aria-pressed='true'] {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* A stand-in for the user's scene. The overlay is drawn at its real size on top. */
+.chat-preview {
+  --stage-a: #1c2447;
+  --stage-b: #3a2a6b;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  height: clamp(380px, calc(100vh - 190px), 620px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--stage-a), var(--stage-b));
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 8px 28px rgba(0, 0, 0, 0.35);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.14), transparent 45%),
+      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 48px),
+      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 48px);
+  }
+}
+
+.chat-preview-size {
+  position: absolute;
+  right: 14px;
+  top: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  font: 500 11px var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.chat-preview-overlay {
+  position: relative;
+  margin: 14px;
+  max-width: calc(100% - 28px);
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  outline: 1px dashed rgba(255, 255, 255, 0.35);
+  outline-offset: 4px;
+}
+
+.chat-preview-foot {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.chat-preview-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+
+  &-warn {
+    background: var(--warn-soft);
+    color: var(--warn);
+    border-color: transparent;
   }
 }

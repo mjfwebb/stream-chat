@@ -1,9 +1,64 @@
 .filter-editor {
+  display: grid;
+  gap: 8px;
+
   &-rules {
-    display: flex;
-    gap: 0.5rem;
+    display: grid;
+    gap: 8px;
+  }
+
+  &-rule {
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr) auto auto;
+    gap: 8px;
     align-items: center;
-    margin-bottom: 1rem;
-    flex-direction: column;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface-2);
+
+    @media (max-width: 520px) {
+      grid-template-columns: 1fr 1fr;
+
+      input[type='text'] {
+        grid-column: 1 / -1;
+        order: 3;
+      }
+    }
+  }
+
+  &-case {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 12.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  &-remove {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--surface);
+      color: var(--bad);
+    }
+  }
+
+  &-empty {
+    padding: 16px;
+    text-align: center;
+    color: var(--muted);
+    border: 1px dashed var(--line);
+    border-radius: 8px;
   }
 }

@@ -1,11 +1,12 @@
 import { TwitchConnectPage } from './TwitchConnectPage';
 
+import './Main.less';
+
 export const Main = () => {
   return (
-    <main>
-      <h1>Athano's Stream Chat Overlay</h1>
+    <div className="studio">
       <TwitchConnectPage />
-      <footer>
+      <footer className="studio-footer">
         <p>
           This app is open source and available on{' '}
           <a href="https://github.com/mjfwebb/twitch-chat/">
@@ -18,6 +19,6 @@ export const Main = () => {
           Made with 🧟 by <a href="https://twitch.tv/athano">Athano</a>
         </p>
       </footer>
-    </main>
+    </div>
   );
 };

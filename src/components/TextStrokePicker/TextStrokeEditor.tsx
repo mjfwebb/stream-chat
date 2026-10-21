@@ -17,7 +17,8 @@ const Wrapper = styled.div`
   border-radius: 6px;
   color: #bec6cf;
   font-size: 14px;
-  width: 340px;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const Row = styled.div`

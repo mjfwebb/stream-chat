@@ -12,8 +12,9 @@ const backdropStyle: React.CSSProperties = {
 };
 
 const modalStyle: React.CSSProperties = {
-  background: '#1f1f1f',
-  color: '#fff',
+  background: 'var(--surface)',
+  border: '1px solid var(--line)',
+  color: 'var(--fg)',
   padding: '1rem',
   borderRadius: 8,
   minWidth: 320,

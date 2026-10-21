@@ -1,0 +1,26 @@
+.unit-field {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  input[type='range'] {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--accent);
+  }
+
+  input[type='number'] {
+    width: 84px;
+    flex: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  select {
+    width: 76px;
+    flex: none;
+  }
+
+  .button {
+    padding: 4px 8px;
+  }
+}

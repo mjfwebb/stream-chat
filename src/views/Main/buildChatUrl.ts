@@ -68,3 +68,17 @@ export function buildUpdatedChatUrl(chatUrl: string, overlayParameters: OverlayP
   });
   return url.toString();
 }
+
+/** Counts the parameters whose value differs between two overlay URLs, ignoring parameter order and encoding. */
+export function countChangedParams(urlA: string, urlB: string): number {
+  const a = new URL(urlA).searchParams;
+  const b = new URL(urlB).searchParams;
+  const keys = new Set([...a.keys(), ...b.keys()]);
+  let changed = 0;
+  keys.forEach((key) => {
+    if (a.get(key) !== b.get(key)) {
+      changed++;
+    }
+  });
+  return changed;
+}

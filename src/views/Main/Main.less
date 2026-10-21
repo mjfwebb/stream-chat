@@ -1,0 +1,35 @@
+/* Page shell for the settings studio. Scoped so the /chat overlay keeps its own look. */
+.studio {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  &-footer {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+
+    p {
+      margin: 0 0 6px;
+    }
+  }
+}
