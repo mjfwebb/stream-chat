@@ -19,7 +19,7 @@ export const eventSubscribe = async (sessionId: string, type: EventsubSubscripti
       },
     });
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Client-Id': clientId,
@@ -28,6 +28,11 @@ export const eventSubscribe = async (sessionId: string, type: EventsubSubscripti
       },
       body,
     });
+
+    if (response.status === 401) {
+      logger.warn(`Twitch rejected the access token while subscribing to ${type}.`);
+      store.getState().setTokenStatus('expired');
+    }
   } catch (error) {
     logger.error(`Failed to subscribe to EventSub event ${type}: ${JSON.stringify(error)}`);
   }

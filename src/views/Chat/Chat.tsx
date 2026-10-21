@@ -1,5 +1,6 @@
 import { DisappearingChat } from './DisappearingChat';
 import { NonDisappearingChat } from './NonDisappearingChat';
+import { TokenExpiredNotice } from './TokenExpiredNotice';
 import { useChatSearchParams } from './useChatSearchParams';
 
 import { TwitchWebSocketClient } from '../../TwitchWebSocketClient';
@@ -24,6 +25,7 @@ export const Chat = () => {
           fontFamily: chatSearchParams.fontFamily,
         }}
       >
+        <TokenExpiredNotice />
         {chatSearchParams.animatedExit ? <DisappearingChat /> : <NonDisappearingChat />}
       </div>
     </>

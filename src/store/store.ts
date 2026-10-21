@@ -6,8 +6,13 @@ import { ChatBadge, ChatCheer, ChatEmote } from '../types/types';
 
 const CLIENT_ID = 'nl4u7l1h4dt48e8hj58yha0we527kg';
 
+// unknown: not checked yet. valid: Twitch accepted the token. expired: Twitch rejected the token (401).
+export type TokenStatus = 'unknown' | 'valid' | 'expired';
+
 interface StoreState {
   broadcasterId: string | null;
+  tokenStatus: TokenStatus;
+  setTokenStatus: (status: TokenStatus) => void;
 
   setBroadcasterId: (id: string | null) => void;
   clientId: string;
@@ -37,6 +42,8 @@ interface StoreState {
 
 export const store = create<StoreState>((set) => ({
   broadcasterId: null,
+  tokenStatus: 'unknown',
+  setTokenStatus: (status: TokenStatus) => set({ tokenStatus: status }),
   setBroadcasterId: (id: string | null) => set({ broadcasterId: id }),
   clientId: CLIENT_ID,
   chatBadges: {},
@@ -85,6 +92,7 @@ export const store = create<StoreState>((set) => ({
   reset: () =>
     set({
       broadcasterId: null,
+      tokenStatus: 'unknown',
       clientId: CLIENT_ID,
       chatBadges: {},
       chatCheers: {},
