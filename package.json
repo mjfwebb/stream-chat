@@ -14,7 +14,7 @@
     "format:fix": "oxfmt ."
   },
   "dependencies": {
-    "@sentry/react": "10.76.2",
+    "@sentry/react": "11.9.0",
     "@twemoji/api": "17.0.3",
     "classnames": "2.5.1",
     "color": "5.0.3",
