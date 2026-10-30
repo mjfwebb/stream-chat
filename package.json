@@ -14,7 +14,7 @@
     "format:fix": "oxfmt ."
   },
   "dependencies": {
-    "@sentry/react": "10.76.2",
+    "@sentry/react": "10.77.1",
     "@twemoji/api": "17.0.3",
     "classnames": "2.5.1",
     "color": "5.0.3",
@@ -34,8 +34,8 @@
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.2",
     "less": "4.9.1",
-    "oxfmt": "0.74.0",
-    "oxlint": "1.89.0",
+    "oxfmt": "0.75.0",
+    "oxlint": "1.90.0",
     "oxlint-tsgolint": "7.0.2005",
     "styled-components": "6.6.0",
     "typescript": "7.0.2",
@@ -45,5 +45,5 @@
   "engines": {
     "node": "v26.12.1"
   },
-  "packageManager": "pnpm@12.16.0+sha512.e9ccc91a0b8d52da297c16841f9ee05f3ddd631bd757ef26a211687d4a38de653c614453649294438c58be74c2ba62d53e633a4e153708c012296d0f3ee27b36"
+  "packageManager": "pnpm@12.16.1+sha512.091d1dee7927575661b25dab3c2ae31cafc1c54d6b71ed6a6600cf0c1cb10434a447eae14015f1b23e2e6bedeed79df94a932e2164d2832280dce3fb32f656d1"
 }
