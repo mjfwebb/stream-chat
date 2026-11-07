@@ -3,6 +3,8 @@
   "extends": ["config:best-practices"],
   "groupName": "all",
   "minimumReleaseAge": "7 days",
+  "minimumReleaseAgeBehaviour": "timestamp-required",
+  "internalChecksFilter": "strict",
   "rebaseWhen": "auto",
   "automerge": true,
   "major": {
