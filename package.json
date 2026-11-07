@@ -32,15 +32,15 @@
     "@types/node": "26.6.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@vitejs/plugin-react": "6.2.1",
+    "@vitejs/plugin-react": "6.1.2",
     "less": "4.9.1",
-    "oxfmt": "0.76.0",
-    "oxlint": "1.91.0",
+    "oxfmt": "0.75.0",
+    "oxlint": "1.90.0",
     "oxlint-tsgolint": "7.0.2005",
     "styled-components": "6.6.0",
     "typescript": "7.0.2",
     "vite": "8.3.5",
-    "vitest": "5.1.0"
+    "vitest": "5.0.5"
   },
   "engines": {
     "node": "26.13.0"
