@@ -14,36 +14,36 @@
     "format:fix": "oxfmt ."
   },
   "dependencies": {
-    "@sentry/react": "11.10.0",
+    "@sentry/react": "11.17.0",
     "@twemoji/api": "17.0.3",
     "classnames": "2.5.1",
     "color": "5.0.3",
-    "motion": "14.9.0",
+    "motion": "14.14.0",
     "picocolors": "1.1.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-use-websocket": "4.13.0",
-    "react-virtuoso": "4.18.20",
+    "react-virtuoso": "4.18.24",
     "wouter": "3.13.0",
     "zod": "4.6.7",
-    "zustand": "5.0.16"
+    "zustand": "5.1.0"
   },
   "devDependencies": {
-    "@types/node": "26.6.6",
-    "@types/react": "19.3.0",
+    "@types/node": "26.6.10",
+    "@types/react": "19.3.2",
     "@types/react-dom": "19.3.0",
-    "@vitejs/plugin-react": "6.1.2",
+    "@vitejs/plugin-react": "6.3.0",
     "less": "4.9.1",
-    "oxfmt": "0.75.0",
-    "oxlint": "1.90.0",
-    "oxlint-tsgolint": "7.0.2005",
-    "styled-components": "6.6.0",
+    "oxfmt": "0.80.0",
+    "oxlint": "1.95.0",
+    "oxlint-tsgolint": "7.0.2008",
+    "styled-components": "6.7.0",
     "typescript": "7.0.2",
-    "vite": "8.3.5",
-    "vitest": "5.0.5"
+    "vite": "8.3.8",
+    "vitest": "5.1.1"
   },
   "engines": {
-    "node": "26.13.0"
+    "node": "26.13.1"
   },
-  "packageManager": "pnpm@12.17.0+sha512.b8d223ebec04b580a89ed206daa71d1bccb6a1ee1d52efa95cc3b0db75271561df8f0d8e2c43add39c5ec08018af7a8a95108e7090f95a29f88727b7a40fd53d"
+  "packageManager": "pnpm@12.23.0+sha512.02da94ffaf133f46074322afe552f90d40b5f71ae259aefbccdacc5085b1d617e98d65e0131f5748b9b67445978ee5055d7d59a473f1eef0d504854fefcd5975"
 }
